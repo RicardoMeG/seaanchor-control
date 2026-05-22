@@ -312,10 +312,11 @@ tbody td{padding:10px 14px;color:var(--text);}
 </div></div>
 
 <script>
-// ── CONFIGURATION — UPDATE YOUR TOKEN HERE ────────────────────────────────
-const NOTION_TOKEN = 'YOUR_TOKEN_HERE'; // Replace with your secret_... token
-const CREDENTIALS  = { user: 'seaanchor', pass: 'dock2025' };
-const SESSION_KEY  = 'sa_notion_session';
+// ── CONFIGURATION ─────────────────────────────────────────────────────────
+const CREDENTIALS = { user: 'seaanchor', pass: 'dock2025' };
+const SESSION_KEY = 'sa_notion_session';
+const TOKEN_KEY   = 'sa_notion_token';
+let NOTION_TOKEN  = localStorage.getItem(TOKEN_KEY) || '';
 
 const DB_IDS = {
   customers:  '3684ceb2780880c2aa41d665f1625441',
@@ -483,9 +484,79 @@ function closeCombo(id){document.getElementById(id)?.classList.remove('open');}
 function fillCombo(dropId,items,onClick){const el=document.getElementById(dropId);if(!el)return;el.innerHTML=items.map((v,i)=>`<div class="combo-option"><span>${v||'—'}</span></div>`).join('');el.querySelectorAll('.combo-option').forEach((opt,i)=>{opt.querySelector('span').onmousedown=(e)=>{e.preventDefault();onClick(items[i]);};});el.classList.add('open');}
 
 // ── LOGIN ─────────────────────────────────────────────────────────────────
-function doLogin(){const u=document.getElementById('login-user').value.trim();const p=document.getElementById('login-pass').value;if(u===CREDENTIALS.user&&p===CREDENTIALS.pass){sessionStorage.setItem(SESSION_KEY,'1');document.getElementById('login-page').style.display='none';showHome();loadAll();}else{document.getElementById('login-error').style.display='block';}}
-function doLogout(){sessionStorage.removeItem(SESSION_KEY);document.getElementById('login-page').style.display='flex';document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));}
-function checkSession(){if(sessionStorage.getItem(SESSION_KEY)==='1'){document.getElementById('login-page').style.display='none';showHome();loadAll();}}
+function doLogin(){
+  const u=document.getElementById('login-user').value.trim();
+  const p=document.getElementById('login-pass').value;
+  if(u===CREDENTIALS.user&&p===CREDENTIALS.pass){
+    if(!NOTION_TOKEN){
+      // Show token setup screen
+      document.getElementById('login-page').style.display='none';
+      showTokenSetup();
+    } else {
+      sessionStorage.setItem(SESSION_KEY,'1');
+      document.getElementById('login-page').style.display='none';
+      showHome();loadAll();
+    }
+  } else {
+    document.getElementById('login-error').style.display='block';
+  }
+}
+
+function showTokenSetup(){
+  const div=document.createElement('div');
+  div.id='token-setup-page';
+  div.style.cssText='position:fixed;inset:0;background:var(--white);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9998;';
+  div.innerHTML=`
+    <div style="background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);padding:36px 40px;width:420px;box-shadow:var(--shadow);text-align:center">
+      <img src="logo.jpeg" style="height:70px;margin-bottom:14px" onerror="this.style.display='none'">
+      <div style="font-family:var(--font);font-size:17px;font-weight:700;color:var(--blue);margin-bottom:6px">Notion Connection</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:22px">Enter your Notion integration token to connect</div>
+      <div style="text-align:left;margin-bottom:14px">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:5px">Integration Token</div>
+        <input id="token-input" type="password" placeholder="secret_..." style="font-family:var(--font);font-size:14px;color:var(--text);padding:10px 14px;border-radius:7px;border:1.5px solid var(--border);width:100%;outline:none;" onkeydown="if(event.key==='Enter')saveToken()">
+        <div style="font-size:11px;color:var(--muted);margin-top:6px">Found at notion.so/my-integrations → SeaAnchor Control</div>
+      </div>
+      <div id="token-error" style="font-size:12px;color:var(--danger);margin-bottom:10px;display:none">Invalid token — please check and try again.</div>
+      <button onclick="saveToken()" style="width:100%;padding:11px;background:var(--blue);color:var(--white);border:none;border-radius:7px;font-family:var(--font);font-size:14px;font-weight:700;cursor:pointer;">Connect to Notion</button>
+    </div>`;
+  document.body.appendChild(div);
+}
+
+async function saveToken(){
+  const t=document.getElementById('token-input').value.trim();
+  if(!t||!t.startsWith('secret_')){
+    document.getElementById('token-error').style.display='block';
+    return;
+  }
+  NOTION_TOKEN=t;
+  localStorage.setItem(TOKEN_KEY,t);
+  // Test connection
+  const test=await notionQuery(DB_IDS.customers);
+  if(test!==null){
+    document.getElementById('token-setup-page')?.remove();
+    sessionStorage.setItem(SESSION_KEY,'1');
+    showHome();loadAll();
+  } else {
+    document.getElementById('token-error').style.display='block';
+    NOTION_TOKEN='';
+    localStorage.removeItem(TOKEN_KEY);
+  }
+}
+
+function doLogout(){
+  sessionStorage.removeItem(SESSION_KEY);
+  document.getElementById('login-page').style.display='flex';
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('login-user').value='';
+  document.getElementById('login-pass').value='';
+}
+
+function checkSession(){
+  if(sessionStorage.getItem(SESSION_KEY)==='1'){
+    document.getElementById('login-page').style.display='none';
+    showHome();loadAll();
+  }
+}
 
 // ── NAV ───────────────────────────────────────────────────────────────────
 function showHome(){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('home-page').classList.add('active');}
