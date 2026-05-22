@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sea-Anchor Marine Construction</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap');
+:root{
+  --blue:#445B9F;--orange:#F68D3D;--ol:#FEF3EA;--bl:#EDF1FA;
+  --white:#FFFFFF;--bg:#F7F8FC;--border:#D8DEED;--muted:#8395A7;
+  --danger:#C0392B;--success:#1E8449;--text:#445B9F;
+  --shadow:0 4px 20px rgba(68,91,159,0.10);--radius:9px;
+  --font:'korolev-rounded','Lato',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font);background:var(--white);color:var(--text);min-height:100vh;}
+.btn{padding:9px 20px;border-radius:7px;border:1.5px solid var(--orange);background:var(--white);color:var(--blue);font-family:var(--font);font-size:13.5px;font-weight:700;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:6px;}
+.btn:hover{background:var(--ol);transform:translateY(-1px);}
+.btn-primary{background:var(--blue);color:var(--white);border-color:var(--blue);}
+.btn-primary:hover{background:#364d8a;}
+.btn-danger{border-color:var(--danger);color:var(--danger);}
+.btn-danger:hover{background:#fdecea;}
+.btn-cancel{border-color:var(--muted);color:var(--muted);}
+.btn-cancel:hover{background:#f5f5f5;}
+.btn-back{font-size:13px;padding:7px 14px;}
+.btn-sm{padding:6px 13px;font-size:12px;}
+
+/* LOGIN */
+#login-page{position:fixed;inset:0;background:var(--white);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;}
+.login-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);padding:36px 40px;width:340px;box-shadow:var(--shadow);text-align:center;}
+.login-logo{height:90px;margin-bottom:16px;}
+.login-title{font-family:var(--font);font-size:18px;font-weight:700;color:var(--blue);margin-bottom:4px;}
+.login-sub{font-size:11px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:24px;}
+.login-field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px;text-align:left;}
+.login-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);}
+.login-input{font-family:var(--font);font-size:14px;color:var(--text);padding:10px 14px;border-radius:7px;border:1.5px solid var(--border);width:100%;outline:none;transition:border .15s;}
+.login-input:focus{border-color:var(--orange);}
+.login-error{font-size:12px;color:var(--danger);margin-bottom:10px;display:none;}
+.login-btn{width:100%;padding:11px;background:var(--blue);color:var(--white);border:none;border-radius:7px;font-family:var(--font);font-size:14px;font-weight:700;cursor:pointer;margin-top:4px;}
+.login-btn:hover{background:#364d8a;}
+
+/* HEADER */
+.page-header{display:flex;align-items:center;justify-content:space-between;padding:12px 28px;border-bottom:2px solid var(--border);background:var(--white);position:sticky;top:0;z-index:80;}
+.header-left,.header-right{width:110px;display:flex;align-items:center;}
+.header-right{justify-content:flex-end;}
+.header-right img{height:42px;width:auto;cursor:pointer;transition:opacity .15s;}
+.header-right img:hover{opacity:.8;}
+.header-center{flex:1;text-align:center;}
+.page-title{font-family:var(--font);font-size:21px;font-weight:700;color:var(--blue);}
+
+/* PAGES */
+.page{display:none;min-height:100vh;}
+.page.active{display:block;}
+.page-content{padding:28px;max-width:980px;margin:0 auto;}
+
+/* HOME */
+#home-page{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;background:var(--white);padding:40px 20px;}
+#home-page.active{display:flex;}
+.home-logo-wrap{margin-bottom:14px;}
+.home-logo-wrap img{height:120px;width:auto;}
+.home-slogan{text-align:center;margin-bottom:32px;}
+.home-slogan p{font-family:var(--font);font-size:22px;font-weight:700;line-height:1.5;}
+.sea-anchor{color:var(--orange);}
+.rest{color:var(--blue);}
+.home-buttons{display:grid;grid-template-columns:repeat(3,200px);gap:16px;margin-bottom:16px;justify-content:center;}
+.home-buttons-row2{display:grid;grid-template-columns:repeat(3,200px);gap:16px;justify-content:center;}
+.home-btn{width:200px;height:56px;border:1.5px solid var(--orange);border-radius:9px;background:var(--white);color:var(--blue);font-family:var(--font);font-size:15px;font-weight:700;cursor:pointer;transition:all .18s;display:flex;align-items:center;justify-content:center;}
+.home-btn:hover{background:var(--ol);transform:translateY(-2px);}
+.home-status{margin-top:20px;font-size:12px;color:var(--muted);text-align:center;}
+.home-status.connected{color:var(--success);font-weight:700;}
+.home-status.error{color:var(--danger);}
+.logout-btn{margin-top:14px;font-size:12px;color:var(--muted);background:none;border:none;cursor:pointer;font-family:var(--font);text-decoration:underline;}
+.logout-btn:hover{color:var(--danger);}
+
+/* LOADING */
+.loading-bar{display:none;position:fixed;top:0;left:0;right:0;height:3px;background:var(--orange);z-index:9998;animation:loadBar 1s infinite;}
+@keyframes loadBar{0%{opacity:1}50%{opacity:.4}100%{opacity:1}}
+.loading-bar.active{display:block;}
+
+/* SEARCH PANEL */
+.search-panel{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);padding:22px;max-width:520px;margin:28px auto 0;box-shadow:var(--shadow);}
+.search-panel h2{font-family:var(--font);font-size:15px;color:var(--blue);margin-bottom:16px;text-align:center;font-weight:700;}
+.search-input{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:7px;font-family:var(--font);font-size:14px;color:var(--text);outline:none;transition:border .15s;margin-bottom:6px;}
+.search-input:focus{border-color:var(--orange);}
+.search-results-dropdown{background:var(--white);border:1.5px solid var(--orange);border-radius:7px;max-height:200px;overflow-y:auto;margin-bottom:12px;display:none;box-shadow:var(--shadow);}
+.search-results-dropdown.open{display:block;}
+.search-result-item{padding:9px 14px;font-size:13px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .1s;color:var(--text);}
+.search-result-item:last-child{border-bottom:none;}
+.search-result-item:hover{background:var(--ol);}
+.res-id{font-weight:700;color:var(--blue);margin-right:8px;}
+.res-sub{color:var(--muted);font-size:12px;}
+.dropdowns-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
+.combo-wrap{position:relative;}
+.combo-label{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px;}
+.combo-input{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:7px;font-family:var(--font);font-size:13px;color:var(--text);outline:none;background:var(--white);transition:border .15s;}
+.combo-input:focus{border-color:var(--orange);}
+.combo-dropdown{position:absolute;top:100%;left:0;right:0;background:var(--white);border:1.5px solid var(--orange);border-radius:7px;max-height:180px;overflow-y:auto;z-index:200;display:none;box-shadow:var(--shadow);}
+.combo-dropdown.open{display:block;}
+.combo-option{padding:8px 12px;font-size:13px;cursor:pointer;transition:background .1s;color:var(--text);display:flex;align-items:center;justify-content:space-between;}
+.combo-option:hover{background:var(--ol);}
+.panel-actions{display:flex;gap:10px;justify-content:flex-end;align-items:center;}
+
+/* TABLE */
+.table-wrap{overflow-x:auto;margin-top:20px;border-radius:var(--radius);box-shadow:var(--shadow);}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead tr{background:var(--blue);color:var(--white);}
+thead th{padding:11px 14px;text-align:left;font-family:var(--font);font-weight:700;font-size:12px;white-space:nowrap;}
+tbody tr{border-bottom:1px solid var(--border);transition:background .12s;cursor:pointer;}
+tbody tr:nth-child(even){background:var(--bl);}
+tbody tr:hover{background:var(--ol);}
+tbody td{padding:10px 14px;color:var(--text);}
+.view-all-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.view-all-title{font-family:var(--font);font-size:16px;font-weight:700;color:var(--blue);}
+
+/* FINANCIALS TOTALS */
+.fin-total-bar{display:flex;gap:14px;margin-bottom:20px;flex-wrap:wrap;}
+.fin-total-card{flex:1;min-width:130px;background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);padding:12px 16px;box-shadow:var(--shadow);}
+.ftc-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:4px;}
+.ftc-value{font-family:var(--font);font-size:20px;font-weight:900;}
+
+/* DETAIL CARD */
+.detail-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);padding:26px 30px;max-width:680px;margin:20px auto;box-shadow:var(--shadow);}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.form-field{display:flex;flex-direction:column;gap:5px;}
+.form-field.full{grid-column:1/-1;}
+.form-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);}
+.form-value{font-size:14px;color:var(--text);padding:9px 12px;border-radius:6px;background:var(--bg);min-height:38px;}
+.form-input{font-family:var(--font);font-size:14px;color:var(--text);padding:9px 12px;border-radius:6px;border:1.5px solid var(--border);background:var(--white);width:100%;outline:none;transition:border .15s;}
+.form-input:focus{border-color:var(--orange);}
+.form-input.readonly{background:var(--bg);color:var(--muted);cursor:not-allowed;}
+.form-select{font-family:var(--font);font-size:14px;color:var(--text);padding:9px 12px;border-radius:6px;border:1.5px solid var(--border);background:var(--white);width:100%;outline:none;}
+.form-select:focus{border-color:var(--orange);}
+.form-textarea{font-family:var(--font);font-size:14px;color:var(--text);padding:9px 12px;border-radius:6px;border:1.5px solid var(--border);background:var(--white);width:100%;outline:none;resize:vertical;min-height:68px;}
+.form-textarea:focus{border-color:var(--orange);}
+.detail-actions{display:flex;gap:10px;margin-top:18px;justify-content:flex-end;align-items:center;}
+.detail-actions-left{margin-right:auto;}
+.section-divider{font-family:var(--font);font-size:12px;font-weight:700;color:var(--blue);letter-spacing:1px;text-transform:uppercase;border-bottom:2px solid var(--border);padding-bottom:5px;margin:18px 0 12px;}
+.proj-name-header{font-family:var(--font);font-size:19px;font-weight:700;color:var(--blue);margin-bottom:18px;}
+
+/* STATUS */
+.status-section{margin-top:16px;border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.status-section-header{background:var(--bl);padding:9px 16px;font-family:var(--font);font-size:13px;font-weight:700;color:var(--blue);}
+.status-section-body{padding:14px 16px;}
+.status-slider-wrap{display:flex;margin-bottom:12px;}
+.status-step{flex:1;padding:8px 4px;text-align:center;font-size:11px;font-weight:700;cursor:pointer;border:1.5px solid var(--border);margin-right:-1px;color:var(--muted);background:var(--white);transition:all .15s;text-transform:uppercase;}
+.status-step:first-child{border-radius:6px 0 0 6px;}
+.status-step:last-child{border-radius:0 6px 6px 0;margin-right:0;}
+.status-step.active{background:var(--blue);color:var(--white);border-color:var(--blue);z-index:1;}
+.status-step:hover:not(.active){background:var(--ol);border-color:var(--orange);color:var(--blue);}
+
+/* LINKED */
+.linked-projects{margin-top:16px;}
+.linked-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:7px;}
+.linked-item{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border:1.5px solid var(--border);border-radius:6px;margin-bottom:5px;cursor:pointer;font-size:13px;transition:all .13s;}
+.linked-item:hover{background:var(--ol);border-color:var(--orange);}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(68,91,159,.32);display:flex;align-items:center;justify-content:center;z-index:1000;animation:fadeIn .15s ease;}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal-box{background:var(--white);border-radius:var(--radius);padding:26px 30px;width:90%;max-width:480px;box-shadow:0 20px 60px rgba(68,91,159,.2);animation:slideUp .2s ease;max-height:90vh;overflow-y:auto;}
+@keyframes slideUp{from{transform:translateY(18px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-title{font-family:var(--font);font-size:17px;font-weight:700;color:var(--blue);margin-bottom:18px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:22px;right:22px;background:var(--blue);color:var(--white);padding:10px 18px;border-radius:8px;font-size:13px;font-weight:700;box-shadow:var(--shadow);transform:translateY(18px);opacity:0;transition:all .22s;z-index:9999;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.toast-error{background:var(--danger);}
+.toast.toast-success{background:var(--success);}
+
+/* CALENDAR */
+.calendar-wrap{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;max-width:800px;margin:0 auto;}
+.cal-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:var(--blue);color:var(--white);}
+.cal-title{font-family:var(--font);font-size:17px;font-weight:700;}
+.cal-nav{background:transparent;border:1.5px solid rgba(255,255,255,.4);color:var(--white);border-radius:6px;padding:5px 14px;cursor:pointer;font-family:var(--font);font-size:13px;font-weight:700;}
+.cal-nav:hover{background:rgba(255,255,255,.15);}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);}
+.cal-day-header{padding:9px 4px;text-align:center;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;background:var(--bl);border-bottom:1px solid var(--border);}
+.cal-cell{min-height:80px;padding:6px;border:1px solid var(--border);cursor:pointer;transition:background .12s;}
+.cal-cell:hover{background:var(--ol);}
+.cal-cell.other-month{background:var(--bg);}
+.cal-cell.today .cal-date-num{background:var(--blue);color:var(--white);border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;}
+.cal-date-num{font-size:12px;font-weight:700;margin-bottom:4px;display:inline-flex;}
+.cal-event{background:var(--blue);color:var(--white);font-size:10px;font-weight:700;padding:2px 5px;border-radius:4px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cal-event.ev-completing{background:var(--orange);}
+.cal-event.ev-completed{background:var(--success);}
+.cal-event.ev-overdue{background:var(--danger);}
+</style>
+</head>
+<body>
+<div class="loading-bar" id="loading-bar"></div>
+
+<!-- LOGIN -->
+<div id="login-page">
+  <div class="login-card">
+    <img src="logo.jpeg" class="login-logo" alt="Sea-Anchor" onerror="this.style.display='none'">
+    <div class="login-title">SEA-ANCHOR</div>
+    <div class="login-sub">Marine Construction</div>
+    <div class="login-field"><div class="login-label">Username</div><input class="login-input" type="text" id="login-user" placeholder="Username" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <div class="login-field"><div class="login-label">Password</div><input class="login-input" type="password" id="login-pass" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <div class="login-error" id="login-error">Incorrect username or password.</div>
+    <button class="login-btn" onclick="doLogin()">Sign In</button>
+  </div>
+</div>
+
+<!-- HOME -->
+<div id="home-page" class="page">
+  <div class="home-logo-wrap"><img src="logo.jpeg" alt="Sea-Anchor" onerror="this.style.display='none'"></div>
+  <div class="home-slogan">
+    <p><span class="rest">There's always a way ...</span></p>
+    <p><span class="rest">... the </span><span class="sea-anchor">SEA ANCHOR</span><span class="rest"> way</span></p>
+  </div>
+  <div class="home-buttons">
+    <button class="home-btn" onclick="showPage('customers')">Customers</button>
+    <button class="home-btn" onclick="showPage('projects')">Projects</button>
+    <button class="home-btn" onclick="showPage('schedule')">Schedule</button>
+  </div>
+  <div class="home-buttons-row2">
+    <button class="home-btn" onclick="showPage('suppliers')">Suppliers</button>
+    <button class="home-btn" onclick="showPage('costing')">Costing</button>
+    <button class="home-btn" onclick="showPage('financials')">Financials</button>
+  </div>
+  <div class="home-status" id="home-status">Connecting to Notion...</div>
+  <button class="logout-btn" onclick="doLogout()">Sign out</button>
+</div>
+
+<!-- CUSTOMERS -->
+<div id="customers-page" class="page"><div id="customers-header"></div><div class="page-content">
+  <div id="customers-search-view"><div class="search-panel"><h2>Search Customers</h2>
+    <input type="text" class="search-input" id="cust-search" placeholder="Search by name, ID, or contact..." oninput="custSearchLive()">
+    <div class="search-results-dropdown" id="cust-search-results"></div>
+    <div class="dropdowns-row">
+      <div class="combo-wrap"><div class="combo-label">Customer ID</div><input class="combo-input" id="cust-id-input" placeholder="All IDs..." oninput="custComboFilter('id',this.value)" onfocus="custComboAll('id')" onblur="setTimeout(()=>closeCombo('cust-id-dropdown'),150)" autocomplete="off"><div class="combo-dropdown" id="cust-id-dropdown"></div></div>
+      <div class="combo-wrap"><div class="combo-label">Name / Company</div><input class="combo-input" id="cust-name-input" placeholder="All names..." oninput="custComboFilter('name',this.value)" onfocus="custComboAll('name')" onblur="setTimeout(()=>closeCombo('cust-name-dropdown'),150)" autocomplete="off"><div class="combo-dropdown" id="cust-name-dropdown"></div></div>
+    </div>
+    <div class="panel-actions"><button class="btn" onclick="showAllCustomers()">View All</button><button class="btn btn-primary" onclick="custSearchOK()">OK</button><button class="btn" onclick="showAddCustomer()">Add</button></div>
+  </div></div>
+  <div id="customers-table-view" style="display:none"><div class="view-all-header"><div class="view-all-title">All Customers</div><button class="btn btn-sm" onclick="showCustSearch()">Back to Search</button></div><div class="table-wrap"><table><thead><tr><th>ID</th><th>Company</th><th>Main Contact</th><th>Phone</th><th>Email</th><th>Location</th></tr></thead><tbody id="customers-tbody"></tbody></table></div></div>
+  <div id="customers-form-view" style="display:none"></div>
+</div></div>
+
+<!-- PROJECTS -->
+<div id="projects-page" class="page"><div id="projects-header"></div><div class="page-content">
+  <div id="projects-search-view"><div class="search-panel"><h2>Search Projects</h2>
+    <input type="text" class="search-input" id="proj-search" placeholder="Search by name, ID, or customer..." oninput="projSearchLive()">
+    <div class="search-results-dropdown" id="proj-search-results"></div>
+    <div class="dropdowns-row">
+      <div class="combo-wrap"><div class="combo-label">Project ID</div><input class="combo-input" id="proj-id-input" placeholder="All IDs..." oninput="projComboFilter('id',this.value)" onfocus="projComboAll('id')" onblur="setTimeout(()=>closeCombo('proj-id-dropdown'),150)" autocomplete="off"><div class="combo-dropdown" id="proj-id-dropdown"></div></div>
+      <div class="combo-wrap"><div class="combo-label">Project Name</div><input class="combo-input" id="proj-name-input" placeholder="All names..." oninput="projComboFilter('name',this.value)" onfocus="projComboAll('name')" onblur="setTimeout(()=>closeCombo('proj-name-dropdown'),150)" autocomplete="off"><div class="combo-dropdown" id="proj-name-dropdown"></div></div>
+    </div>
+    <div class="panel-actions"><button class="btn" onclick="showAllProjects()">View All</button><button class="btn btn-primary" onclick="projSearchOK()">OK</button><button class="btn" onclick="showAddProject()">Add</button></div>
+  </div></div>
+  <div id="projects-table-view" style="display:none"><div class="view-all-header"><div class="view-all-title">All Projects</div><button class="btn btn-sm" onclick="showProjSearch()">Back to Search</button></div><div class="table-wrap"><table><thead><tr><th>ID</th><th>Project Name</th><th>Customer</th><th>Type</th><th>Start</th><th>Finish</th><th>Budget</th><th>Phase</th></tr></thead><tbody id="projects-tbody"></tbody></table></div></div>
+  <div id="projects-form-view" style="display:none"></div>
+</div></div>
+
+<!-- SCHEDULE -->
+<div id="schedule-page" class="page"><div id="schedule-header"></div><div class="page-content">
+  <div id="schedule-calendar-view"><div class="calendar-wrap"><div class="cal-header"><button class="cal-nav" onclick="calPrev()">&#8249;</button><div class="cal-title" id="cal-title"></div><button class="cal-nav" onclick="calNext()">&#8250;</button></div><div class="cal-grid" id="cal-day-headers"></div><div class="cal-grid" id="cal-cells"></div></div></div>
+  <div id="schedule-form-view" style="display:none"></div>
+</div></div>
+
+<!-- SUPPLIERS -->
+<div id="suppliers-page" class="page"><div id="suppliers-header"></div><div class="page-content">
+  <div id="suppliers-search-view"><div class="search-panel"><h2>Search Suppliers</h2>
+    <input type="text" class="search-input" id="supp-search" placeholder="Search by name, ID, or contact..." oninput="suppSearchLive()">
+    <div class="search-results-dropdown" id="supp-search-results"></div>
+    <div class="dropdowns-row">
+      <div class="combo-wrap"><div class="combo-label">Supplier ID</div><input class="combo-input" id="supp-id-input" placeholder="All IDs..." oninput="suppComboFilter('id',this.value)" onfocus="suppComboAll('id')" onblur="setTimeout(()=>closeCombo('supp-id-dropdown'),150)" autocomplete="off"><div class="combo-dropdown" id="supp-id-dropdown"></div></div>
+      <div class="combo-wrap"><div class="combo-label">Company</div><input class="combo-input" id="supp-name-input" placeholder="All companies..." oninput="suppComboFilter('name',this.value)" onfocus="suppComboAll('name')" onblur="setTimeout(()=>closeCombo('supp-name-dropdown'),150)" autocomplete="off"><div class="combo-dropdown" id="supp-name-dropdown"></div></div>
+    </div>
+    <div class="panel-actions"><button class="btn" onclick="showAllSuppliers()">View All</button><button class="btn btn-primary" onclick="suppSearchOK()">OK</button><button class="btn" onclick="showAddSupplier()">Add</button></div>
+  </div></div>
+  <div id="suppliers-table-view" style="display:none"><div class="view-all-header"><div class="view-all-title">All Suppliers</div><button class="btn btn-sm" onclick="showSuppSearch()">Back to Search</button></div><div class="table-wrap"><table><thead><tr><th>ID</th><th>Company</th><th>Main Contact</th><th>Phone</th><th>Email</th><th>Location</th></tr></thead><tbody id="suppliers-tbody"></tbody></table></div></div>
+  <div id="suppliers-form-view" style="display:none"></div>
+</div></div>
+
+<!-- COSTING -->
+<div id="costing-page" class="page"><div id="costing-header"></div><div class="page-content">
+  <div id="costing-search-view"><div class="search-panel"><h2>Search Costing</h2>
+    <input type="text" class="search-input" id="cost-search" placeholder="Search by project or customer..." oninput="costSearchLive()">
+    <div class="search-results-dropdown" id="cost-search-results"></div>
+    <div class="dropdowns-row">
+      <div class="combo-wrap"><div class="combo-label">Project ID</div><input class="combo-input" id="cost-id-input" placeholder="All IDs..." oninput="costComboFilter('id',this.value)" onfocus="costComboAll('id')" onblur="setTimeout(()=>closeCombo('cost-id-dropdown'),150)" autocomplete="off"><div class="combo-dropdown" id="cost-id-dropdown"></div></div>
+      <div class="combo-wrap"><div class="combo-label">Project Name</div><input class="combo-input" id="cost-name-input" placeholder="All projects..." oninput="costComboFilter('name',this.value)" onfocus="costComboAll('name')" onblur="setTimeout(()=>closeCombo('cost-name-dropdown'),150)" autocomplete="off"><div class="combo-dropdown" id="cost-name-dropdown"></div></div>
+    </div>
+    <div class="panel-actions"><button class="btn" onclick="showAllCosting()">View All</button><button class="btn btn-primary" onclick="costSearchOK()">OK</button></div>
+  </div></div>
+  <div id="costing-table-view" style="display:none"><div class="view-all-header"><div class="view-all-title">All Costing Records</div><button class="btn btn-sm" onclick="showCostSearch()">Back to Search</button></div><div class="table-wrap"><table><thead><tr><th>Project ID</th><th>Project Name</th><th>Customer</th><th>Estimate</th><th>Deposit</th><th>Payment</th><th>Cost</th><th>Summary</th></tr></thead><tbody id="costing-tbody"></tbody></table></div></div>
+  <div id="costing-form-view" style="display:none"></div>
+</div></div>
+
+<!-- FINANCIALS -->
+<div id="financials-page" class="page"><div id="financials-header"></div><div class="page-content">
+  <div id="financials-search-view"><div class="search-panel"><h2>Financials</h2>
+    <input type="text" class="search-input" id="fin-search" placeholder="Search by date, type, customer, project..." oninput="finSearchLive()">
+    <div class="search-results-dropdown" id="fin-search-results"></div>
+    <div class="dropdowns-row">
+      <div class="combo-wrap"><div class="combo-label">Type</div><input class="combo-input" id="fin-type-input" placeholder="All types..." oninput="finComboFilter('type',this.value)" onfocus="finComboAll('type')" onblur="setTimeout(()=>closeCombo('fin-type-dropdown'),150)" autocomplete="off"><div class="combo-dropdown" id="fin-type-dropdown"></div></div>
+      <div class="combo-wrap"><div class="combo-label">Customer / Supplier</div><input class="combo-input" id="fin-entity-input" placeholder="All..." oninput="finComboFilter('entity',this.value)" onfocus="finComboAll('entity')" onblur="setTimeout(()=>closeCombo('fin-entity-dropdown'),150)" autocomplete="off"><div class="combo-dropdown" id="fin-entity-dropdown"></div></div>
+      <div class="combo-wrap"><div class="combo-label">Project</div><input class="combo-input" id="fin-proj-input" placeholder="All projects..." oninput="finComboFilter('proj',this.value)" onfocus="finComboAll('proj')" onblur="setTimeout(()=>closeCombo('fin-proj-dropdown'),150)" autocomplete="off"><div class="combo-dropdown" id="fin-proj-dropdown"></div></div>
+      <div class="combo-wrap"><div class="combo-label">Payment Type</div><input class="combo-input" id="fin-pay-input" placeholder="All..." oninput="finComboFilter('pay',this.value)" onfocus="finComboAll('pay')" onblur="setTimeout(()=>closeCombo('fin-pay-dropdown'),150)" autocomplete="off"><div class="combo-dropdown" id="fin-pay-dropdown"></div></div>
+    </div>
+    <div class="panel-actions"><button class="btn" onclick="showAllFinancials()">View All</button><button class="btn btn-primary" onclick="finSearchOK()">OK</button><button class="btn" onclick="showAddFinancial()">Add Movement</button></div>
+  </div></div>
+  <div id="financials-table-view" style="display:none">
+    <div id="fin-totals-bar"></div>
+    <div class="view-all-header"><div class="view-all-title">All Movements</div><button class="btn btn-sm" onclick="showFinSearch()">Back</button></div>
+    <div class="table-wrap"><table><thead><tr><th>Date</th><th>Type</th><th>Customer/Supplier</th><th>Description</th><th>Project</th><th>Payment Type</th><th>Amount</th></tr></thead><tbody id="financials-tbody"></tbody></table></div>
+  </div>
+  <div id="financials-form-view" style="display:none"></div>
+</div></div>
+
+<script>
+// ── CONFIGURATION — UPDATE YOUR TOKEN HERE ────────────────────────────────
+const NOTION_TOKEN = 'YOUR_TOKEN_HERE'; // Replace with your secret_... token
+const CREDENTIALS  = { user: 'seaanchor', pass: 'dock2025' };
+const SESSION_KEY  = 'sa_notion_session';
+
+const DB_IDS = {
+  customers:  '3684ceb2780880c2aa41d665f1625441',
+  projects:   '3684ceb27808806181a4ec0dc7efd7eb',
+  schedule:   '3684ceb2780880358ca4fadfc074bd49',
+  suppliers:  '3684ceb27808800fb6dfd92f6e3ad2f8',
+  costing:    '3684ceb2780880d69fa3c8a8fd388595',
+  financials: '3684ceb278088025ae7aeae9a8b0a51e',
+};
+
+const PROJECT_TYPES = ['Pile Repair','Pile New','Dock Repair','Dock New','Deck Repair','Deck New','Fence Repair','Fence New'];
+const PAYMENT_TYPES = ['Cash','Transfer','Cheque','Card'];
+
+// ── CACHE ─────────────────────────────────────────────────────────────────
+let cache = { customers:[], projects:[], schedule:[], suppliers:[], costing:[], financials:[] };
+let calYear = new Date().getFullYear(), calMonth = new Date().getMonth();
+
+// ── NOTION API ────────────────────────────────────────────────────────────
+const PROXY = 'https://notion-proxy.vercel.app/api/notion'; // CORS proxy
+
+async function notionQuery(dbId, filter=null) {
+  setLoading(true);
+  try {
+    const body = { database_id: dbId };
+    if (filter) body.filter = filter;
+    const res = await fetch(`https://api.notion.com/v1/databases/${dbId}/query`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${NOTION_TOKEN}`,
+        'Notion-Version': '2022-06-28',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    return data.results || [];
+  } catch(e) {
+    toast('Connection error: ' + e.message, 'error');
+    return [];
+  } finally { setLoading(false); }
+}
+
+async function notionCreate(dbId, props) {
+  setLoading(true);
+  try {
+    const res = await fetch('https://api.notion.com/v1/pages', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${NOTION_TOKEN}`,
+        'Notion-Version': '2022-06-28',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ parent: { database_id: dbId }, properties: props }),
+    });
+    return await res.json();
+  } catch(e) { toast('Error saving: ' + e.message, 'error'); return null; }
+  finally { setLoading(false); }
+}
+
+async function notionUpdate(pageId, props) {
+  setLoading(true);
+  try {
+    const res = await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${NOTION_TOKEN}`,
+        'Notion-Version': '2022-06-28',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ properties: props }),
+    });
+    return await res.json();
+  } catch(e) { toast('Error updating: ' + e.message, 'error'); return null; }
+  finally { setLoading(false); }
+}
+
+async function notionDelete(pageId) {
+  setLoading(true);
+  try {
+    await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${NOTION_TOKEN}`,
+        'Notion-Version': '2022-06-28',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ archived: true }),
+    });
+    return true;
+  } catch(e) { toast('Error deleting: ' + e.message, 'error'); return false; }
+  finally { setLoading(false); }
+}
+
+// ── PROPERTY HELPERS ──────────────────────────────────────────────────────
+function pText(val) { return { rich_text: [{ text: { content: String(val||'') } }] }; }
+function pTitle(val) { return { title: [{ text: { content: String(val||'') } }] }; }
+function pNum(val) { return { number: val ? Number(val) : null }; }
+function pDate(val) { return { date: val ? { start: val } : null }; }
+function pSelect(val) { return { select: val ? { name: String(val) } : null }; }
+function pEmail(val) { return { email: val || null }; }
+
+function gText(prop) { return prop?.rich_text?.map(r=>r.plain_text).join('')||prop?.title?.map(r=>r.plain_text).join('')||''; }
+function gNum(prop) { return prop?.number ?? ''; }
+function gDate(prop) { return prop?.date?.start || ''; }
+function gSelect(prop) { return prop?.select?.name || ''; }
+function gEmail(prop) { return prop?.email || ''; }
+
+// ── PARSE RECORDS ─────────────────────────────────────────────────────────
+function parseCust(p) {
+  const pr = p.properties;
+  return { _id: p.id, id: gText(pr['Customer ID']), company: gText(pr['Company']), mainContact: gText(pr['Main Contact']), phone: gText(pr['Phone']), email: gEmail(pr['Email']), location: gText(pr['Location']), notes: gText(pr['Notes']) };
+}
+function parseProj(p) {
+  const pr = p.properties;
+  return { _id: p.id, id: gText(pr['Project ID']), name: gText(pr['Project Name']), customerId: gText(pr['Customer ID']), customer: gText(pr['Customer']), type: gSelect(pr['Project Type']), location: gText(pr['Location']), startDate: gDate(pr['Start Date']), finishDate: gDate(pr['Finish Date']), budget: gNum(pr['Budget']), cost: gNum(pr['Cost']), notes: gText(pr['Notes']), quoteStatus: gSelect(pr['Quote Status']), quoteNotes: gText(pr['Quote Notes']), permitStatus: gSelect(pr['Permit Status']), permitNotes: gText(pr['Permit Notes']), phaseStatus: gSelect(pr['Phase Status']), phaseNotes: gText(pr['Phase Notes']) };
+}
+function parseSupp(p) {
+  const pr = p.properties;
+  return { _id: p.id, id: gText(pr['Supplier ID']), company: gText(pr['Company']), mainContact: gText(pr['Main Contact']), phone: gText(pr['Phone']), email: gEmail(pr['Email']), location: gText(pr['Location']), notes: gText(pr['Notes']) };
+}
+function parseCost(p) {
+  const pr = p.properties;
+  return { _id: p.id, projectId: gText(pr['Project ID']), projectName: gText(pr['Project Name']), customer: gText(pr['Customer']), estimate: gNum(pr['Estimate']), deposit: gNum(pr['Deposit']), paymentType: gSelect(pr['Payment Type']), depositDate: gDate(pr['Deposit Date']), payment: gNum(pr['Payment']), paymentMethod: gSelect(pr['Payment Method']), paymentDate: gDate(pr['Payment Date']), cost: gNum(pr['Cost']), summary: gNum(pr['Summary']) };
+}
+function parseFin(p) {
+  const pr = p.properties;
+  return { _id: p.id, date: gDate(pr['Date']), type: gSelect(pr['Type']), entity: gText(pr['Entity']), description: gText(pr['Description']), project: gText(pr['Project']), paymentType: gSelect(pr['Payment Type']), amount: gNum(pr['Amount']) };
+}
+
+// ── LOAD DATA ─────────────────────────────────────────────────────────────
+async function loadAll() {
+  const [custs, projs, supps, costs, fins] = await Promise.all([
+    notionQuery(DB_IDS.customers),
+    notionQuery(DB_IDS.projects),
+    notionQuery(DB_IDS.suppliers),
+    notionQuery(DB_IDS.costing),
+    notionQuery(DB_IDS.financials),
+  ]);
+  cache.customers  = custs.map(parseCust);
+  cache.projects   = projs.map(parseProj);
+  cache.suppliers  = supps.map(parseSupp);
+  cache.costing    = costs.map(parseCost);
+  cache.financials = fins.map(parseFin);
+  updateStatus(true);
+}
+
+// ── UTILS ─────────────────────────────────────────────────────────────────
+function nextId(sheet, prefix) {
+  const nums = cache[sheet].map(r => parseInt((r.id||'').split('-')[1])||0);
+  return `${prefix}-${String((nums.length?Math.max(...nums):0)+1).padStart(3,'0')}`;
+}
+function todayStr() { const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+function fmt$(v) { return v!==''&&v!==undefined&&v!==null&&Number(v)!==0?'$'+Number(v).toLocaleString():'—'; }
+function setLoading(on) { document.getElementById('loading-bar').classList.toggle('active', on); }
+function updateStatus(ok) {
+  const el=document.getElementById('home-status');
+  if(ok){el.textContent=`Connected · ${cache.customers.length} customers · ${cache.projects.length} projects`;el.className='home-status connected';}
+  else{el.textContent='Connection error — check your token';el.className='home-status error';}
+}
+function toast(msg,type='success'){const t=document.createElement('div');t.className=`toast toast-${type}`;t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.classList.add('show'),10);setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),300);},2500);}
+function confirmModal(msg,onConfirm,label='Confirm',danger=false){const color=danger?'var(--danger)':'var(--blue)';const ov=document.createElement('div');ov.className='modal-overlay';ov.innerHTML=`<div class="modal-box" style="text-align:center"><p style="font-size:14px;margin-bottom:22px;color:var(--blue)">${msg}</p><div style="display:flex;gap:10px;justify-content:center"><button class="btn btn-cancel" id="cc">Cancel</button><button class="btn" id="cf" style="background:${color};color:#fff;border-color:${color}">${label}</button></div></div>`;document.body.appendChild(ov);ov.querySelector('#cc').onclick=()=>ov.remove();ov.querySelector('#cf').onclick=()=>{ov.remove();onConfirm();};ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});}
+function logoHTML(){return `<img src="logo.jpeg" alt="" style="height:42px;width:auto;cursor:pointer" onclick="showHome()" onerror="this.style.display='none'">`;}
+function buildHeader(title){return `<div class="page-header"><div class="header-left"><button class="btn btn-back" onclick="showHome()">Back</button></div><div class="header-center"><h1 class="page-title">${title}</h1></div><div class="header-right">${logoHTML()}</div></div>`;}
+function closeCombo(id){document.getElementById(id)?.classList.remove('open');}
+function fillCombo(dropId,items,onClick){const el=document.getElementById(dropId);if(!el)return;el.innerHTML=items.map((v,i)=>`<div class="combo-option"><span>${v||'—'}</span></div>`).join('');el.querySelectorAll('.combo-option').forEach((opt,i)=>{opt.querySelector('span').onmousedown=(e)=>{e.preventDefault();onClick(items[i]);};});el.classList.add('open');}
+
+// ── LOGIN ─────────────────────────────────────────────────────────────────
+function doLogin(){const u=document.getElementById('login-user').value.trim();const p=document.getElementById('login-pass').value;if(u===CREDENTIALS.user&&p===CREDENTIALS.pass){sessionStorage.setItem(SESSION_KEY,'1');document.getElementById('login-page').style.display='none';showHome();loadAll();}else{document.getElementById('login-error').style.display='block';}}
+function doLogout(){sessionStorage.removeItem(SESSION_KEY);document.getElementById('login-page').style.display='flex';document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));}
+function checkSession(){if(sessionStorage.getItem(SESSION_KEY)==='1'){document.getElementById('login-page').style.display='none';showHome();loadAll();}}
+
+// ── NAV ───────────────────────────────────────────────────────────────────
+function showHome(){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('home-page').classList.add('active');}
+function showPage(name){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(`${name}-page`).classList.add('active');const titles={customers:'Customers',projects:'Projects',schedule:'Schedule',suppliers:'Suppliers',costing:'Costing',financials:'Financials'};document.getElementById(`${name}-header`).innerHTML=buildHeader(titles[name]);['search','table','form','calendar'].forEach(v=>{const el=document.getElementById(`${name}-${v}-view`);if(el)el.style.display=v==='search'||v==='calendar'?'block':'none';});if(name==='customers')initCustSearch();if(name==='projects')initProjSearch();if(name==='schedule')renderCalendar();if(name==='suppliers')initSuppSearch();if(name==='costing')initCostSearch();if(name==='financials')initFinSearch();}
+
+// ══════════════════════════════════════════════════════════════════════════
+// CUSTOMERS
+// ══════════════════════════════════════════════════════════════════════════
+function initCustSearch(){['cust-search','cust-id-input','cust-name-input'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('cust-search-results')?.classList.remove('open');}
+function showCustSearch(){document.getElementById('customers-table-view').style.display='none';document.getElementById('customers-form-view').style.display='none';document.getElementById('customers-search-view').style.display='block';initCustSearch();}
+function custSearchLive(){const q=document.getElementById('cust-search').value.toLowerCase().trim();const el=document.getElementById('cust-search-results');if(!q){el.classList.remove('open');return;}const res=cache.customers.filter(c=>Object.values(c).some(v=>String(v).toLowerCase().includes(q))).slice(0,10);if(!res.length){el.classList.remove('open');return;}el.innerHTML=res.map(c=>`<div class="search-result-item" onclick="showCustDetail('${c._id}')"><span class="res-id">${c.id}</span>${c.company}<span class="res-sub"> · ${c.mainContact}</span></div>`).join('');el.classList.add('open');}
+function custComboAll(t){if(t==='id')fillCombo('cust-id-dropdown',cache.customers.map(c=>c.id),v=>{document.getElementById('cust-id-input').value=v;closeCombo('cust-id-dropdown');});else fillCombo('cust-name-dropdown',cache.customers.map(c=>c.company),v=>{document.getElementById('cust-name-input').value=v;closeCombo('cust-name-dropdown');});}
+function custComboFilter(t,val){const f=t==='id'?'id':'company';const res=cache.customers.filter(c=>String(c[f]||'').toLowerCase().includes(val.toLowerCase()));if(t==='id')fillCombo('cust-id-dropdown',res.map(c=>c.id),v=>{document.getElementById('cust-id-input').value=v;closeCombo('cust-id-dropdown');});else fillCombo('cust-name-dropdown',res.map(c=>c.company),v=>{document.getElementById('cust-name-input').value=v;closeCombo('cust-name-dropdown');});}
+function custSearchOK(){const idV=document.getElementById('cust-id-input').value.trim();const nameV=document.getElementById('cust-name-input').value.trim();const r=idV?cache.customers.find(c=>c.id===idV):nameV?cache.customers.find(c=>c.company===nameV):null;if(r)showCustDetail(r._id);else if(idV||nameV)toast('Customer not found','error');else toast('Select a customer','error');}
+async function showAllCustomers(){document.getElementById('customers-search-view').style.display='none';document.getElementById('customers-form-view').style.display='none';document.getElementById('customers-table-view').style.display='block';const rows=await notionQuery(DB_IDS.customers);cache.customers=rows.map(parseCust);document.getElementById('customers-tbody').innerHTML=cache.customers.map(c=>`<tr onclick="showCustDetail('${c._id}')"><td>${c.id}</td><td>${c.company}</td><td>${c.mainContact}</td><td>${c.phone}</td><td>${c.email}</td><td>${c.location}</td></tr>`).join('');}
+function showAddCustomer(){document.getElementById('customers-search-view').style.display='none';document.getElementById('customers-form-view').style.display='block';const nid=nextId('customers','C');document.getElementById('customers-form-view').innerHTML=`<div class="detail-card"><div class="section-divider">New Customer</div><div class="form-grid"><div class="form-field"><div class="form-label">Customer ID</div><input class="form-input readonly" id="f-id" value="${nid}" readonly></div><div class="form-field"><div class="form-label">Name / Company</div><input class="form-input" id="f-company" placeholder="Company name"></div><div class="form-field"><div class="form-label">Main Contact</div><input class="form-input" id="f-contact" placeholder="Contact name"></div><div class="form-field"><div class="form-label">Phone</div><input class="form-input" id="f-phone" placeholder="Phone"></div><div class="form-field full"><div class="form-label">Email</div><input class="form-input" id="f-email" placeholder="email@example.com"></div><div class="form-field full"><div class="form-label">Location</div><input class="form-input" id="f-location" placeholder="City, Province"></div><div class="form-field full"><div class="form-label">Notes</div><textarea class="form-textarea" id="f-notes" placeholder="Notes..."></textarea></div></div><div class="detail-actions"><div class="detail-actions-left"><button class="btn btn-cancel" onclick="showCustSearch()">Cancel</button></div><button class="btn btn-primary" onclick="saveCust()">Save</button></div></div>`;}
+async function saveCust(){const company=document.getElementById('f-company').value.trim();if(!company){toast('Company name required','error');return;}const props={'Company':pTitle(company),'Customer ID':pText(document.getElementById('f-id').value),'Main Contact':pText(document.getElementById('f-contact').value),'Phone':pText(document.getElementById('f-phone').value),'Email':pEmail(document.getElementById('f-email').value),'Location':pText(document.getElementById('f-location').value),'Notes':pText(document.getElementById('f-notes').value)};const res=await notionCreate(DB_IDS.customers,props);if(res){cache.customers.push(parseCust(res));toast('Customer saved!','success');showAllCustomers();}}
+async function showCustDetail(pageId){const rows=await notionQuery(DB_IDS.customers);cache.customers=rows.map(parseCust);const c=cache.customers.find(r=>r._id===pageId);if(!c)return;document.getElementById('customers-search-view').style.display='none';document.getElementById('customers-table-view').style.display='none';document.getElementById('customers-form-view').style.display='block';const linked=cache.projects.filter(p=>p.customerId===c.id);document.getElementById('customers-form-view').innerHTML=`<div class="detail-card"><div class="section-divider">Customer Details</div><div class="form-grid"><div class="form-field"><div class="form-label">Customer ID</div><div class="form-value">${c.id}</div></div><div class="form-field"><div class="form-label">Name / Company</div><div class="form-value">${c.company}</div></div><div class="form-field"><div class="form-label">Main Contact</div><div class="form-value">${c.mainContact}</div></div><div class="form-field"><div class="form-label">Phone</div><div class="form-value">${c.phone}</div></div><div class="form-field full"><div class="form-label">Email</div><div class="form-value">${c.email}</div></div><div class="form-field full"><div class="form-label">Location</div><div class="form-value">${c.location}</div></div><div class="form-field full"><div class="form-label">Notes</div><div class="form-value">${c.notes}</div></div></div>${linked.length?`<div class="linked-projects"><div class="linked-label">Projects (${linked.length})</div>${linked.map(p=>`<div class="linked-item" onclick="showProjDetail('${p._id}')"><span>${p.id} — ${p.name}</span><span style="color:var(--muted);font-size:12px">${p.phaseStatus||'—'}</span></div>`).join('')}</div>`:''}<div class="detail-actions"><div class="detail-actions-left"><button class="btn btn-cancel" onclick="showAllCustomers()">Back</button></div><button class="btn btn-danger" onclick="deleteCust('${pageId}')">Delete</button><button class="btn" onclick="editCust('${pageId}')">Edit</button></div></div>`;}
+function editCust(pageId){confirmModal('Edit this customer?',async()=>{const c=cache.customers.find(r=>r._id===pageId);if(!c)return;document.getElementById('customers-form-view').innerHTML=`<div class="detail-card"><div class="section-divider">Edit Customer</div><div class="form-grid"><div class="form-field"><div class="form-label">Customer ID</div><input class="form-input readonly" value="${c.id}" readonly></div><div class="form-field"><div class="form-label">Name / Company</div><input class="form-input" id="e-company" value="${c.company}"></div><div class="form-field"><div class="form-label">Main Contact</div><input class="form-input" id="e-contact" value="${c.mainContact}"></div><div class="form-field"><div class="form-label">Phone</div><input class="form-input" id="e-phone" value="${c.phone}"></div><div class="form-field full"><div class="form-label">Email</div><input class="form-input" id="e-email" value="${c.email}"></div><div class="form-field full"><div class="form-label">Location</div><input class="form-input" id="e-location" value="${c.location}"></div><div class="form-field full"><div class="form-label">Notes</div><textarea class="form-textarea" id="e-notes">${c.notes}</textarea></div></div><div class="detail-actions"><div class="detail-actions-left"><button class="btn btn-cancel" onclick="showCustDetail('${pageId}')">Cancel</button></div><button class="btn btn-primary" onclick="updateCust('${pageId}')">Save</button></div></div>`;});}
+async function updateCust(pageId){const props={'Company':pTitle(document.getElementById('e-company').value),'Main Contact':pText(document.getElementById('e-contact').value),'Phone':pText(document.getElementById('e-phone').value),'Email':pEmail(document.getElementById('e-email').value),'Location':pText(document.getElementById('e-location').value),'Notes':pText(document.getElementById('e-notes').value)};await notionUpdate(pageId,props);toast('Updated!','success');showCustDetail(pageId);}
+async function deleteCust(pageId){confirmModal('Delete this customer permanently?',async()=>{await notionDelete(pageId);cache.customers=cache.customers.filter(r=>r._id!==pageId);toast('Deleted','success');showAllCustomers();},'Delete',true);}
+
+// ══════════════════════════════════════════════════════════════════════════
+// PROJECTS
+// ══════════════════════════════════════════════════════════════════════════
+function initProjSearch(){['proj-search','proj-id-input','proj-name-input'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});}
+function showProjSearch(){document.getElementById('projects-table-view').style.display='none';document.getElementById('projects-form-view').style.display='none';document.getElementById('projects-search-view').style.display='block';initProjSearch();}
+function projSearchLive(){const q=document.getElementById('proj-search').value.toLowerCase().trim();const el=document.getElementById('proj-search-results');if(!q){el.classList.remove('open');return;}const res=cache.projects.filter(p=>Object.values(p).some(v=>String(v).toLowerCase().includes(q))).slice(0,10);if(!res.length){el.classList.remove('open');return;}el.innerHTML=res.map(p=>`<div class="search-result-item" onclick="showProjDetail('${p._id}')"><span class="res-id">${p.id}</span>${p.name}<span class="res-sub"> · ${p.customer}</span></div>`).join('');el.classList.add('open');}
+function projComboAll(t){if(t==='id')fillCombo('proj-id-dropdown',cache.projects.map(p=>p.id),v=>{document.getElementById('proj-id-input').value=v;closeCombo('proj-id-dropdown');});else fillCombo('proj-name-dropdown',cache.projects.map(p=>p.name),v=>{document.getElementById('proj-name-input').value=v;closeCombo('proj-name-dropdown');});}
+function projComboFilter(t,val){const f=t==='id'?'id':'name';const res=cache.projects.filter(p=>String(p[f]||'').toLowerCase().includes(val.toLowerCase()));if(t==='id')fillCombo('proj-id-dropdown',res.map(p=>p.id),v=>{document.getElementById('proj-id-input').value=v;closeCombo('proj-id-dropdown');});else fillCombo('proj-name-dropdown',res.map(p=>p.name),v=>{document.getElementById('proj-name-input').value=v;closeCombo('proj-name-dropdown');});}
+function projSearchOK(){const idV=document.getElementById('proj-id-input').value.trim();const nameV=document.getElementById('proj-name-input').value.trim();const r=idV?cache.projects.find(p=>p.id===idV):nameV?cache.projects.find(p=>p.name===nameV):null;if(r)showProjDetail(r._id);else if(idV||nameV)toast('Project not found','error');else toast('Select a project','error');}
+async function showAllProjects(){document.getElementById('projects-search-view').style.display='none';document.getElementById('projects-form-view').style.display='none';document.getElementById('projects-table-view').style.display='block';const rows=await notionQuery(DB_IDS.projects);cache.projects=rows.map(parseProj);document.getElementById('projects-tbody').innerHTML=cache.projects.map(p=>`<tr onclick="showProjDetail('${p._id}')"><td>${p.id}</td><td>${p.name}</td><td>${p.customer}</td><td>${p.type}</td><td>${p.startDate}</td><td>${p.finishDate}</td><td>${fmt$(p.budget)}</td><td>${p.phaseStatus||'—'}</td></tr>`).join('');}
+function typeSelectHTML(cur='',sid=''){return `<select class="form-select" id="${sid}"><option value="">Select type...</option>${PROJECT_TYPES.map(t=>`<option value="${t}"${t===cur?' selected':''}>${t}</option>`).join('')}<option value="__add__">+ Add New Type...</option></select>`;}
+function showAddProject(){document.getElementById('projects-search-view').style.display='none';document.getElementById('projects-form-view').style.display='block';const nid=nextId('projects','P');const custOpts=cache.customers.map(c=>`<option value="${c.id}">${c.id} — ${c.company}</option>`).join('');document.getElementById('projects-form-view').innerHTML=`<div class="detail-card"><div class="section-divider">New Project</div><div class="form-grid"><div class="form-field"><div class="form-label">Project ID</div><input class="form-input readonly" id="pf-id" value="${nid}" readonly></div><div class="form-field"><div class="form-label">Project Name</div><input class="form-input" id="pf-name" placeholder="Project name"></div><div class="form-field"><div class="form-label">Customer</div><select class="form-select" id="pf-cust" onchange="document.getElementById('pf-custid').value=this.value"><option value="">Select...</option>${custOpts}</select></div><div class="form-field"><div class="form-label">Customer ID</div><input class="form-input readonly" id="pf-custid" readonly></div><div class="form-field"><div class="form-label">Project Type</div>${typeSelectHTML('','pf-type')}</div><div class="form-field"><div class="form-label">Location</div><input class="form-input" id="pf-location" placeholder="City, Province"></div><div class="form-field"><div class="form-label">Start Date</div><input class="form-input" type="date" id="pf-start"></div><div class="form-field"><div class="form-label">Finish Date</div><input class="form-input" type="date" id="pf-finish"></div><div class="form-field"><div class="form-label">Budget ($)</div><input class="form-input" type="number" id="pf-budget" placeholder="0"></div><div class="form-field full"><div class="form-label">Notes</div><textarea class="form-textarea" id="pf-notes" placeholder="Notes..."></textarea></div></div><div class="detail-actions"><div class="detail-actions-left"><button class="btn btn-cancel" onclick="showProjSearch()">Cancel</button></div><button class="btn btn-primary" onclick="saveProj()">Save</button></div></div>`;}
+async function saveProj(){const name=document.getElementById('pf-name').value.trim();if(!name){toast('Project name required','error');return;}const cs=document.getElementById('pf-cust');const cid=document.getElementById('pf-custid').value;const cnm=cs.options[cs.selectedIndex]?.text.split(' — ')[1]||'';const budget=parseFloat(document.getElementById('pf-budget').value)||null;const props={'Project Name':pTitle(name),'Project ID':pText(document.getElementById('pf-id').value),'Customer ID':pText(cid),'Customer':pText(cnm),'Project Type':pSelect(document.getElementById('pf-type').value),'Location':pText(document.getElementById('pf-location').value),'Start Date':pDate(document.getElementById('pf-start').value),'Finish Date':pDate(document.getElementById('pf-finish').value),'Budget':pNum(budget),'Notes':pText(document.getElementById('pf-notes').value),'Quote Status':pSelect('Visited'),'Permit Status':pSelect('Preparing Documents'),'Phase Status':pSelect('Scheduled')};const res=await notionCreate(DB_IDS.projects,props);if(res){// Auto-create costing row
+const costProps={'Project Name':pTitle(name),'Project ID':pText(document.getElementById('pf-id').value),'Customer':pText(cnm),'Estimate':pNum(budget)};await notionCreate(DB_IDS.costing,costProps);cache.projects.push(parseProj(res));toast('Project saved!','success');showAllProjects();}}
+async function showProjDetail(pageId){const rows=await notionQuery(DB_IDS.projects);cache.projects=rows.map(parseProj);const p=cache.projects.find(r=>r._id===pageId);if(!p)return;if(!document.getElementById('projects-page').classList.contains('active')){document.querySelectorAll('.page').forEach(pg=>pg.classList.remove('active'));document.getElementById('projects-page').classList.add('active');document.getElementById('projects-header').innerHTML=buildHeader('Projects');}document.getElementById('projects-search-view').style.display='none';document.getElementById('projects-table-view').style.display='none';document.getElementById('projects-form-view').style.display='block';const qS=['Visited','Send','Approved','Deposit','Paid'];const pS=['Preparing Documents','Send','Waiting','Approved'];const phS=['Scheduled','Preparing','Construction','Completed'];function steps(arr,cur,field){return arr.map(s=>`<div class="status-step${s===cur?' active':''}" onclick="updateProjStatus('${pageId}','${field}','${s}')">${s}</div>`).join('');}document.getElementById('projects-form-view').innerHTML=`<div class="detail-card" style="max-width:720px"><div class="proj-name-header">${p.name}</div><div class="form-grid"><div class="form-field"><div class="form-label">Project ID</div><div class="form-value">${p.id}</div></div><div class="form-field"><div class="form-label">Customer</div><div class="form-value">${p.customer}</div></div><div class="form-field"><div class="form-label">Project Type</div><div class="form-value">${p.type}</div></div><div class="form-field"><div class="form-label">Location</div><div class="form-value">${p.location}</div></div><div class="form-field"><div class="form-label">Budget</div><div class="form-value">${fmt$(p.budget)}</div></div><div class="form-field"><div class="form-label">Cost</div><div class="form-value" style="color:${Number(p.cost)>Number(p.budget)?'var(--danger)':'var(--text)'}">${fmt$(p.cost)}</div></div><div class="form-field full"><div class="form-label">Notes</div><div class="form-value">${p.notes}</div></div></div><div class="status-section"><div class="status-section-header">Quote</div><div class="status-section-body"><div class="status-slider-wrap">${steps(qS,p.quoteStatus,'quoteStatus')}</div><div class="form-field full"><div class="form-label">Notes</div><textarea class="form-textarea" id="quote-notes">${p.quoteNotes||''}</textarea></div></div></div><div class="status-section" style="margin-top:10px"><div class="status-section-header">Permits</div><div class="status-section-body"><div class="status-slider-wrap">${steps(pS,p.permitStatus,'permitStatus')}</div><div class="form-field full"><div class="form-label">Notes</div><textarea class="form-textarea" id="permit-notes">${p.permitNotes||''}</textarea></div></div></div><div class="status-section" style="margin-top:10px"><div class="status-section-header">Phase</div><div class="status-section-body"><div class="status-slider-wrap">${steps(phS,p.phaseStatus,'phaseStatus')}</div><div class="form-grid" style="margin-top:12px"><div class="form-field"><div class="form-label">Start Date</div><input class="form-input" type="date" id="pd-start" value="${p.startDate}"></div><div class="form-field"><div class="form-label">Finish Date</div><input class="form-input" type="date" id="pd-finish" value="${p.finishDate}"></div><div class="form-field full"><div class="form-label">Notes</div><textarea class="form-textarea" id="phase-notes">${p.phaseNotes||''}</textarea></div></div></div></div><div class="detail-actions" style="margin-top:18px"><div class="detail-actions-left"><button class="btn btn-cancel" onclick="showAllProjects()">Back</button></div><button class="btn btn-danger" onclick="deleteProj('${pageId}')">Delete</button><button class="btn" onclick="editProj('${pageId}')">Edit</button><button class="btn btn-primary" onclick="confirmProjChanges('${pageId}')">Confirm</button></div></div>`;}
+async function updateProjStatus(pageId,field,value){const propMap={'quoteStatus':'Quote Status','permitStatus':'Permit Status','phaseStatus':'Phase Status'};await notionUpdate(pageId,{[propMap[field]]:pSelect(value)});const idx=cache.projects.findIndex(p=>p._id===pageId);if(idx>-1)cache.projects[idx][field]=value;showProjDetail(pageId);}
+async function confirmProjChanges(pageId){confirmModal('Save all changes?',async()=>{await notionUpdate(pageId,{'Start Date':pDate(document.getElementById('pd-start').value),'Finish Date':pDate(document.getElementById('pd-finish').value),'Quote Notes':pText(document.getElementById('quote-notes').value),'Permit Notes':pText(document.getElementById('permit-notes').value),'Phase Notes':pText(document.getElementById('phase-notes').value)});toast('Project updated!','success');showProjDetail(pageId);});}
+function editProj(pageId){confirmModal('Edit this project?',async()=>{const p=cache.projects.find(r=>r._id===pageId);if(!p)return;const custOpts=cache.customers.map(c=>`<option value="${c.id}"${c.id===p.customerId?' selected':''}>${c.id} — ${c.company}</option>`).join('');document.getElementById('projects-form-view').innerHTML=`<div class="detail-card"><div class="section-divider">Edit Project</div><div class="form-grid"><div class="form-field"><div class="form-label">Project ID</div><input class="form-input readonly" value="${p.id}" readonly></div><div class="form-field"><div class="form-label">Project Name</div><input class="form-input" id="ep-name" value="${p.name}"></div><div class="form-field"><div class="form-label">Customer</div><select class="form-select" id="ep-cust" onchange="document.getElementById('ep-custid').value=this.value"><option value="">Select...</option>${custOpts}</select></div><div class="form-field"><div class="form-label">Customer ID</div><input class="form-input readonly" id="ep-custid" value="${p.customerId}" readonly></div><div class="form-field"><div class="form-label">Project Type</div>${typeSelectHTML(p.type,'ep-type')}</div><div class="form-field"><div class="form-label">Location</div><input class="form-input" id="ep-location" value="${p.location}"></div><div class="form-field"><div class="form-label">Start Date</div><input class="form-input" type="date" id="ep-start" value="${p.startDate}"></div><div class="form-field"><div class="form-label">Finish Date</div><input class="form-input" type="date" id="ep-finish" value="${p.finishDate}"></div><div class="form-field"><div class="form-label">Budget ($)</div><input class="form-input" type="number" id="ep-budget" value="${p.budget}"></div><div class="form-field full"><div class="form-label">Notes</div><textarea class="form-textarea" id="ep-notes">${p.notes}</textarea></div></div><div class="detail-actions"><div class="detail-actions-left"><button class="btn btn-cancel" onclick="showProjDetail('${pageId}')">Cancel</button></div><button class="btn btn-primary" onclick="updateProj('${pageId}')">Save</button></div></div>`;});}
+async function updateProj(pageId){const cs=document.getElementById('ep-cust');const cnm=cs.options[cs.selectedIndex]?.text.split(' — ')[1]||'';const budget=parseFloat(document.getElementById('ep-budget').value)||null;await notionUpdate(pageId,{'Project Name':pTitle(document.getElementById('ep-name').value),'Customer ID':pText(document.getElementById('ep-custid').value),'Customer':pText(cnm),'Project Type':pSelect(document.getElementById('ep-type').value),'Location':pText(document.getElementById('ep-location').value),'Start Date':pDate(document.getElementById('ep-start').value),'Finish Date':pDate(document.getElementById('ep-finish').value),'Budget':pNum(budget),'Notes':pText(document.getElementById('ep-notes').value)});// sync budget to costing
+const costRows=await notionQuery(DB_IDS.costing);const costRec=costRows.find(r=>gText(r.properties['Project ID'])===cache.projects.find(p=>p._id===pageId)?.id);if(costRec)await notionUpdate(costRec.id,{'Estimate':pNum(budget)});toast('Updated!','success');showProjDetail(pageId);}
+async function deleteProj(pageId){confirmModal('Delete this project permanently?',async()=>{await notionDelete(pageId);cache.projects=cache.projects.filter(r=>r._id!==pageId);toast('Deleted','success');showAllProjects();},'Delete',true);}
+
+// ══════════════════════════════════════════════════════════════════════════
+// SCHEDULE
+// ══════════════════════════════════════════════════════════════════════════
+const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+function calPrev(){calMonth--;if(calMonth<0){calMonth=11;calYear--;}renderCalendar();}
+function calNext(){calMonth++;if(calMonth>11){calMonth=0;calYear++;}renderCalendar();}
+function renderCalendar(){document.getElementById('cal-title').textContent=`${MONTHS[calMonth]} ${calYear}`;document.getElementById('cal-day-headers').innerHTML=DAYS.map(d=>`<div class="cal-day-header">${d}</div>`).join('');const firstDay=new Date(calYear,calMonth,1).getDay();const daysInMonth=new Date(calYear,calMonth+1,0).getDate();const td=todayStr();let html='';for(let i=0;i<firstDay;i++)html+=`<div class="cal-cell other-month"></div>`;for(let d=1;d<=daysInMonth;d++){const ds=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;const isToday=ds===td;const projs=cache.projects.filter(p=>p.startDate&&p.finishDate&&ds>=p.startDate&&ds<=p.finishDate);const evH=projs.slice(0,2).map(p=>{let cls='cal-event';if(p.phaseStatus==='Completed')cls+=' ev-completed';else if(ds===p.finishDate)cls+=' ev-completing';else if(ds>p.finishDate&&p.phaseStatus!=='Completed')cls+=' ev-overdue';return `<div class="${cls}">${p.name.length>13?p.name.substring(0,12)+'…':p.name}</div>`;}).join('');const more=projs.length>2?`<div style="font-size:10px;color:var(--muted)">+${projs.length-2} more</div>`:'';html+=`<div class="cal-cell${isToday?' today':''}" onclick="calDayClick('${ds}')"><div class="cal-date-num">${d}</div>${evH}${more}</div>`;}document.getElementById('cal-cells').innerHTML=html;}
+function calDayClick(ds){const projs=cache.projects.filter(p=>p.startDate&&p.finishDate&&ds>=p.startDate&&ds<=p.finishDate);if(!projs.length)return;const ov=document.createElement('div');ov.className='modal-overlay';ov.innerHTML=`<div class="modal-box"><div class="modal-title">${ds}</div>${projs.map(p=>`<div class="linked-item" onclick="calOpenProj('${p._id}')"><div><div style="font-weight:700;font-size:13px">${p.name}</div><div style="font-size:11px;color:var(--muted)">${p.location} · ${p.startDate} → ${p.finishDate} · <b>${p.phaseStatus}</b></div></div><span style="color:var(--muted)">→</span></div>`).join('')}<div style="margin-top:14px;text-align:right"><button class="btn btn-cancel btn-sm" onclick="this.closest('.modal-overlay').remove()">Close</button></div></div>`;document.body.appendChild(ov);ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});window.calOpenProj=function(id){ov.remove();showProjDetail(id);};}
+
+// ══════════════════════════════════════════════════════════════════════════
+// SUPPLIERS
+// ══════════════════════════════════════════════════════════════════════════
+function initSuppSearch(){['supp-search','supp-id-input','supp-name-input'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});}
+function showSuppSearch(){document.getElementById('suppliers-table-view').style.display='none';document.getElementById('suppliers-form-view').style.display='none';document.getElementById('suppliers-search-view').style.display='block';initSuppSearch();}
+function suppSearchLive(){const q=document.getElementById('supp-search').value.toLowerCase().trim();const el=document.getElementById('supp-search-results');if(!q){el.classList.remove('open');return;}const res=cache.suppliers.filter(s=>Object.values(s).some(v=>String(v).toLowerCase().includes(q))).slice(0,10);if(!res.length){el.classList.remove('open');return;}el.innerHTML=res.map(s=>`<div class="search-result-item" onclick="showSuppDetail('${s._id}')"><span class="res-id">${s.id}</span>${s.company}<span class="res-sub"> · ${s.mainContact}</span></div>`).join('');el.classList.add('open');}
+function suppComboAll(t){if(t==='id')fillCombo('supp-id-dropdown',cache.suppliers.map(s=>s.id),v=>{document.getElementById('supp-id-input').value=v;closeCombo('supp-id-dropdown');});else fillCombo('supp-name-dropdown',cache.suppliers.map(s=>s.company),v=>{document.getElementById('supp-name-input').value=v;closeCombo('supp-name-dropdown');});}
+function suppComboFilter(t,val){const f=t==='id'?'id':'company';const res=cache.suppliers.filter(s=>String(s[f]||'').toLowerCase().includes(val.toLowerCase()));if(t==='id')fillCombo('supp-id-dropdown',res.map(s=>s.id),v=>{document.getElementById('supp-id-input').value=v;closeCombo('supp-id-dropdown');});else fillCombo('supp-name-dropdown',res.map(s=>s.company),v=>{document.getElementById('supp-name-input').value=v;closeCombo('supp-name-dropdown');});}
+function suppSearchOK(){const idV=document.getElementById('supp-id-input').value.trim();const nameV=document.getElementById('supp-name-input').value.trim();const r=idV?cache.suppliers.find(s=>s.id===idV):nameV?cache.suppliers.find(s=>s.company===nameV):null;if(r)showSuppDetail(r._id);else if(idV||nameV)toast('Supplier not found','error');else toast('Select a supplier','error');}
+async function showAllSuppliers(){document.getElementById('suppliers-search-view').style.display='none';document.getElementById('suppliers-form-view').style.display='none';document.getElementById('suppliers-table-view').style.display='block';const rows=await notionQuery(DB_IDS.suppliers);cache.suppliers=rows.map(parseSupp);document.getElementById('suppliers-tbody').innerHTML=cache.suppliers.map(s=>`<tr onclick="showSuppDetail('${s._id}')"><td>${s.id}</td><td>${s.company}</td><td>${s.mainContact}</td><td>${s.phone}</td><td>${s.email}</td><td>${s.location}</td></tr>`).join('');}
+function showAddSupplier(){document.getElementById('suppliers-search-view').style.display='none';document.getElementById('suppliers-form-view').style.display='block';const nid=nextId('suppliers','S');document.getElementById('suppliers-form-view').innerHTML=`<div class="detail-card"><div class="section-divider">New Supplier</div><div class="form-grid"><div class="form-field"><div class="form-label">Supplier ID</div><input class="form-input readonly" id="sf-id" value="${nid}" readonly></div><div class="form-field"><div class="form-label">Company</div><input class="form-input" id="sf-company" placeholder="Company name"></div><div class="form-field"><div class="form-label">Main Contact</div><input class="form-input" id="sf-contact" placeholder="Contact name"></div><div class="form-field"><div class="form-label">Phone</div><input class="form-input" id="sf-phone" placeholder="Phone"></div><div class="form-field full"><div class="form-label">Email</div><input class="form-input" id="sf-email" placeholder="email@example.com"></div><div class="form-field full"><div class="form-label">Location</div><input class="form-input" id="sf-location" placeholder="City, Province"></div><div class="form-field full"><div class="form-label">Notes</div><textarea class="form-textarea" id="sf-notes" placeholder="Materials or services offered..."></textarea></div></div><div class="detail-actions"><div class="detail-actions-left"><button class="btn btn-cancel" onclick="showSuppSearch()">Cancel</button></div><button class="btn btn-primary" onclick="saveSupp()">Save</button></div></div>`;}
+async function saveSupp(){const company=document.getElementById('sf-company').value.trim();if(!company){toast('Company name required','error');return;}const props={'Company':pTitle(company),'Supplier ID':pText(document.getElementById('sf-id').value),'Main Contact':pText(document.getElementById('sf-contact').value),'Phone':pText(document.getElementById('sf-phone').value),'Email':pEmail(document.getElementById('sf-email').value),'Location':pText(document.getElementById('sf-location').value),'Notes':pText(document.getElementById('sf-notes').value)};const res=await notionCreate(DB_IDS.suppliers,props);if(res){cache.suppliers.push(parseSupp(res));toast('Supplier saved!','success');showAllSuppliers();}}
+async function showSuppDetail(pageId){const s=cache.suppliers.find(r=>r._id===pageId);if(!s)return;document.getElementById('suppliers-search-view').style.display='none';document.getElementById('suppliers-table-view').style.display='none';document.getElementById('suppliers-form-view').style.display='block';document.getElementById('suppliers-form-view').innerHTML=`<div class="detail-card"><div class="section-divider">Supplier Details</div><div class="form-grid"><div class="form-field"><div class="form-label">Supplier ID</div><div class="form-value">${s.id}</div></div><div class="form-field"><div class="form-label">Company</div><div class="form-value">${s.company}</div></div><div class="form-field"><div class="form-label">Main Contact</div><div class="form-value">${s.mainContact}</div></div><div class="form-field"><div class="form-label">Phone</div><div class="form-value">${s.phone}</div></div><div class="form-field full"><div class="form-label">Email</div><div class="form-value">${s.email}</div></div><div class="form-field full"><div class="form-label">Location</div><div class="form-value">${s.location}</div></div><div class="form-field full"><div class="form-label">Notes</div><div class="form-value">${s.notes}</div></div></div><div class="detail-actions"><div class="detail-actions-left"><button class="btn btn-cancel" onclick="showAllSuppliers()">Back</button></div><button class="btn btn-danger" onclick="deleteSupp('${pageId}')">Delete</button><button class="btn" onclick="editSupp('${pageId}')">Edit</button></div></div>`;}
+function editSupp(pageId){confirmModal('Edit this supplier?',async()=>{const s=cache.suppliers.find(r=>r._id===pageId);if(!s)return;document.getElementById('suppliers-form-view').innerHTML=`<div class="detail-card"><div class="section-divider">Edit Supplier</div><div class="form-grid"><div class="form-field"><div class="form-label">Supplier ID</div><input class="form-input readonly" value="${s.id}" readonly></div><div class="form-field"><div class="form-label">Company</div><input class="form-input" id="es-company" value="${s.company}"></div><div class="form-field"><div class="form-label">Main Contact</div><input class="form-input" id="es-contact" value="${s.mainContact}"></div><div class="form-field"><div class="form-label">Phone</div><input class="form-input" id="es-phone" value="${s.phone}"></div><div class="form-field full"><div class="form-label">Email</div><input class="form-input" id="es-email" value="${s.email}"></div><div class="form-field full"><div class="form-label">Location</div><input class="form-input" id="es-location" value="${s.location}"></div><div class="form-field full"><div class="form-label">Notes</div><textarea class="form-textarea" id="es-notes">${s.notes}</textarea></div></div><div class="detail-actions"><div class="detail-actions-left"><button class="btn btn-cancel" onclick="showSuppDetail('${pageId}')">Cancel</button></div><button class="btn btn-primary" onclick="updateSupp('${pageId}')">Save</button></div></div>`;});}
+async function updateSupp(pageId){await notionUpdate(pageId,{'Company':pTitle(document.getElementById('es-company').value),'Main Contact':pText(document.getElementById('es-contact').value),'Phone':pText(document.getElementById('es-phone').value),'Email':pEmail(document.getElementById('es-email').value),'Location':pText(document.getElementById('es-location').value),'Notes':pText(document.getElementById('es-notes').value)});toast('Updated!','success');showSuppDetail(pageId);}
+async function deleteSupp(pageId){confirmModal('Delete this supplier permanently?',async()=>{await notionDelete(pageId);cache.suppliers=cache.suppliers.filter(r=>r._id!==pageId);toast('Deleted','success');showAllSuppliers();},'Delete',true);}
+
+// ══════════════════════════════════════════════════════════════════════════
+// COSTING
+// ══════════════════════════════════════════════════════════════════════════
+function initCostSearch(){['cost-search','cost-id-input','cost-name-input'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});}
+function showCostSearch(){document.getElementById('costing-table-view').style.display='none';document.getElementById('costing-form-view').style.display='none';document.getElementById('costing-search-view').style.display='block';initCostSearch();}
+function costSearchLive(){const q=document.getElementById('cost-search').value.toLowerCase().trim();const el=document.getElementById('cost-search-results');if(!q){el.classList.remove('open');return;}const res=cache.costing.filter(c=>Object.values(c).some(v=>String(v).toLowerCase().includes(q))).slice(0,10);if(!res.length){el.classList.remove('open');return;}el.innerHTML=res.map(c=>`<div class="search-result-item" onclick="showCostDetail('${c._id}')"><span class="res-id">${c.projectId}</span>${c.projectName}<span class="res-sub"> · ${c.customer}</span></div>`).join('');el.classList.add('open');}
+function costComboAll(t){if(t==='id')fillCombo('cost-id-dropdown',cache.costing.map(c=>c.projectId),v=>{document.getElementById('cost-id-input').value=v;closeCombo('cost-id-dropdown');});else fillCombo('cost-name-dropdown',cache.costing.map(c=>c.projectName),v=>{document.getElementById('cost-name-input').value=v;closeCombo('cost-name-dropdown');});}
+function costComboFilter(t,val){const f=t==='id'?'projectId':'projectName';const res=cache.costing.filter(c=>String(c[f]||'').toLowerCase().includes(val.toLowerCase()));if(t==='id')fillCombo('cost-id-dropdown',res.map(c=>c.projectId),v=>{document.getElementById('cost-id-input').value=v;closeCombo('cost-id-dropdown');});else fillCombo('cost-name-dropdown',res.map(c=>c.projectName),v=>{document.getElementById('cost-name-input').value=v;closeCombo('cost-name-dropdown');});}
+function costSearchOK(){const idV=document.getElementById('cost-id-input').value.trim();const nameV=document.getElementById('cost-name-input').value.trim();const r=idV?cache.costing.find(c=>c.projectId===idV):nameV?cache.costing.find(c=>c.projectName===nameV):null;if(r)showCostDetail(r._id);else if(idV||nameV)toast('Not found','error');else toast('Select a project','error');}
+async function showAllCosting(){document.getElementById('costing-search-view').style.display='none';document.getElementById('costing-form-view').style.display='none';document.getElementById('costing-table-view').style.display='block';const rows=await notionQuery(DB_IDS.costing);cache.costing=rows.map(parseCost).sort((a,b)=>a.projectId.localeCompare(b.projectId));document.getElementById('costing-tbody').innerHTML=cache.costing.map(c=>`<tr onclick="showCostDetail('${c._id}')"><td>${c.projectId}</td><td>${c.projectName}</td><td>${c.customer}</td><td>${fmt$(c.estimate)}</td><td>${fmt$(c.deposit)}</td><td>${fmt$(c.payment)}</td><td>${fmt$(c.cost)}</td><td style="font-weight:700;color:${Number(c.summary)>=0?'var(--success)':'var(--danger)'}">${fmt$(c.summary)}</td></tr>`).join('');}
+async function showCostDetail(pageId){const rows=await notionQuery(DB_IDS.costing);cache.costing=rows.map(parseCost);const rec=cache.costing.find(r=>r._id===pageId);if(!rec)return;document.getElementById('costing-search-view').style.display='none';document.getElementById('costing-table-view').style.display='none';document.getElementById('costing-form-view').style.display='block';const sum=rec.estimate&&rec.cost?Number(rec.estimate)-Number(rec.cost):'';const payOpts=PAYMENT_TYPES.map(t=>`<option value="${t}"${t===rec.paymentType?' selected':''}>${t}</option>`).join('');const payMethodOpts=PAYMENT_TYPES.map(t=>`<option value="${t}"${t===rec.paymentMethod?' selected':''}>${t}</option>`).join('');document.getElementById('costing-form-view').innerHTML=`<div class="detail-card"><div class="proj-name-header">${rec.projectName}</div><div class="form-grid"><div class="form-field"><div class="form-label">Project ID</div><div class="form-value">${rec.projectId}</div></div><div class="form-field"><div class="form-label">Customer</div><div class="form-value">${rec.customer}</div></div><div class="form-field"><div class="form-label">Estimate ($)</div><input class="form-input" type="number" id="ec-estimate" value="${rec.estimate}"></div><div class="form-field"><div class="form-label">Deposit ($)</div><input class="form-input" type="number" id="ec-deposit" value="${rec.deposit}"></div><div class="form-field"><div class="form-label">Payment Type</div><select class="form-select" id="ec-paytype"><option value="">Select...</option>${payOpts}</select></div><div class="form-field"><div class="form-label">Deposit Date</div><input class="form-input" type="date" id="ec-depdate" value="${rec.depositDate}"></div><div class="form-field"><div class="form-label">Payment ($)</div><input class="form-input" type="number" id="ec-payment" value="${rec.payment}"></div><div class="form-field"><div class="form-label">Payment Type</div><select class="form-select" id="ec-paymethod"><option value="">Select...</option>${payMethodOpts}</select></div><div class="form-field"><div class="form-label">Payment Date</div><input class="form-input" type="date" id="ec-paydate" value="${rec.paymentDate}"></div><div class="form-field"><div class="form-label">Cost ($)</div><div class="form-value" style="color:${Number(rec.cost)>Number(rec.estimate)?'var(--danger)':'var(--text)'}">${fmt$(rec.cost)}</div></div><div class="form-field full"><div class="form-label">Summary (Estimate − Cost)</div><div class="form-value" style="font-weight:700;font-size:16px;color:${sum>=0?'var(--success)':'var(--danger)'}">${sum!==''?fmt$(sum):'—'}</div></div></div><div class="detail-actions"><div class="detail-actions-left"><button class="btn btn-cancel" onclick="showAllCosting()">Back</button></div><button class="btn btn-primary" onclick="updateCost('${pageId}')">Save</button></div></div>`;}
+async function updateCost(pageId){const est=parseFloat(document.getElementById('ec-estimate').value)||null;const rec=cache.costing.find(r=>r._id===pageId);const cost=rec?Number(rec.cost||0):0;await notionUpdate(pageId,{'Estimate':pNum(est),'Deposit':pNum(parseFloat(document.getElementById('ec-deposit').value)||null),'Payment Type':pSelect(document.getElementById('ec-paytype').value),'Deposit Date':pDate(document.getElementById('ec-depdate').value),'Payment':pNum(parseFloat(document.getElementById('ec-payment').value)||null),'Payment Method':pSelect(document.getElementById('ec-paymethod').value),'Payment Date':pDate(document.getElementById('ec-paydate').value)});// sync estimate to project budget
+const proj=cache.projects.find(p=>p.id===rec?.projectId);if(proj)await notionUpdate(proj._id,{'Budget':pNum(est)});toast('Saved!','success');showCostDetail(pageId);}
+
+// ══════════════════════════════════════════════════════════════════════════
+// FINANCIALS
+// ══════════════════════════════════════════════════════════════════════════
+function initFinSearch(){['fin-search','fin-type-input','fin-entity-input','fin-proj-input','fin-pay-input'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});}
+function showFinSearch(){document.getElementById('financials-table-view').style.display='none';document.getElementById('financials-form-view').style.display='none';document.getElementById('financials-search-view').style.display='block';initFinSearch();}
+function finSearchLive(){const q=document.getElementById('fin-search').value.toLowerCase().trim();const el=document.getElementById('fin-search-results');if(!q){el.classList.remove('open');return;}const res=cache.financials.filter(f=>Object.values(f).some(v=>String(v).toLowerCase().includes(q))).slice(0,10);if(!res.length){el.classList.remove('open');return;}el.innerHTML=res.map(f=>`<div class="search-result-item" onclick="showFinDetail('${f._id}')"><span class="res-id">${f.type}</span>${f.entity}<span class="res-sub"> · ${f.date} · ${fmt$(f.amount)}</span></div>`).join('');el.classList.add('open');}
+function finComboAll(t){const vals={type:['Income','Expense'],entity:[...new Set([...cache.customers.map(c=>c.company),...cache.suppliers.map(s=>s.company)])],proj:cache.projects.map(p=>`${p.id} — ${p.name}`),pay:PAYMENT_TYPES};const ids={type:'fin-type-dropdown',entity:'fin-entity-dropdown',proj:'fin-proj-dropdown',pay:'fin-pay-dropdown'};const inps={type:'fin-type-input',entity:'fin-entity-input',proj:'fin-proj-input',pay:'fin-pay-input'};fillCombo(ids[t],vals[t],v=>{document.getElementById(inps[t]).value=v;closeCombo(ids[t]);});}
+function finComboFilter(t,val){const allVals={type:['Income','Expense'],entity:[...new Set([...cache.customers.map(c=>c.company),...cache.suppliers.map(s=>s.company)])],proj:cache.projects.map(p=>`${p.id} — ${p.name}`),pay:PAYMENT_TYPES};const ids={type:'fin-type-dropdown',entity:'fin-entity-dropdown',proj:'fin-proj-dropdown',pay:'fin-pay-dropdown'};const inps={type:'fin-type-input',entity:'fin-entity-input',proj:'fin-proj-input',pay:'fin-pay-input'};fillCombo(ids[t],allVals[t].filter(v=>v.toLowerCase().includes(val.toLowerCase())),v=>{document.getElementById(inps[t]).value=v;closeCombo(ids[t]);});}
+function finSearchOK(){let res=cache.financials;const type=document.getElementById('fin-type-input').value.trim();const entity=document.getElementById('fin-entity-input').value.trim();const proj=document.getElementById('fin-proj-input').value.trim();const pay=document.getElementById('fin-pay-input').value.trim();if(type)res=res.filter(f=>f.type===type);if(entity)res=res.filter(f=>f.entity===entity);if(proj)res=res.filter(f=>f.project.includes(proj));if(pay)res=res.filter(f=>f.paymentType===pay);showFilteredFinancials(res);}
+function finTotals(list){const income=list.filter(f=>f.type==='Income').reduce((s,f)=>s+Number(f.amount||0),0);const expense=list.filter(f=>f.type==='Expense').reduce((s,f)=>s+Number(f.amount||0),0);return{income,expense,net:income-expense};}
+function renderFinTotals(list){const{income,expense,net}=finTotals(list);document.getElementById('fin-totals-bar').innerHTML=`<div class="fin-total-bar"><div class="fin-total-card"><div class="ftc-label">Total Income</div><div class="ftc-value" style="color:var(--success)">${fmt$(income)}</div></div><div class="fin-total-card"><div class="ftc-label">Total Expenses</div><div class="ftc-value" style="color:var(--danger)">${fmt$(expense)}</div></div><div class="fin-total-card"><div class="ftc-label">Net Balance</div><div class="ftc-value" style="color:${net>=0?'var(--success)':'var(--danger)'}">${fmt$(net)}</div></div></div>`;}
+async function showAllFinancials(){document.getElementById('financials-search-view').style.display='none';document.getElementById('financials-form-view').style.display='none';document.getElementById('financials-table-view').style.display='block';const rows=await notionQuery(DB_IDS.financials);cache.financials=rows.map(parseFin);showFilteredFinancials(cache.financials);}
+function showFilteredFinancials(list){renderFinTotals(list);document.getElementById('financials-tbody').innerHTML=list.map(f=>`<tr onclick="showFinDetail('${f._id}')"><td>${f.date}</td><td><span style="padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;background:${f.type==='Income'?'#E9F7EF':'#FDEDEC'};color:${f.type==='Income'?'var(--success)':'var(--danger)'}">${f.type}</span></td><td>${f.entity}</td><td>${f.description}</td><td>${f.project||'—'}</td><td>${f.paymentType}</td><td style="font-weight:700;color:${f.type==='Income'?'var(--success)':'var(--danger)'}">${fmt$(f.amount)}</td></tr>`).join('');}
+function showAddFinancial(){document.getElementById('financials-search-view').style.display='none';document.getElementById('financials-form-view').style.display='block';const payOpts=PAYMENT_TYPES.map(t=>`<option value="${t}">${t}</option>`).join('');document.getElementById('financials-form-view').innerHTML=`<div class="detail-card" style="max-width:660px"><div class="section-divider">New Movement</div><div class="form-grid"><div class="form-field"><div class="form-label">Date</div><input class="form-input" type="date" id="ff-date" value="${todayStr()}"></div><div class="form-field"><div class="form-label">Type</div><select class="form-select" id="ff-type" onchange="finTypeChanged()"><option value="">Select...</option><option>Income</option><option>Expense</option></select></div><div class="form-field full"><div class="form-label">Customer / Supplier</div><div class="combo-wrap" style="position:relative"><input class="combo-input" id="ff-entity-input" placeholder="Type to search..." oninput="finEntityFilter()" onfocus="finEntityAll()" onblur="setTimeout(()=>closeCombo('ff-entity-dropdown'),150)" autocomplete="off" style="width:100%"><div class="combo-dropdown" id="ff-entity-dropdown"></div></div></div><div class="form-field full"><div class="form-label">Description</div><textarea class="form-textarea" id="ff-desc" placeholder="Describe this movement..."></textarea></div><div class="form-field full"><div class="form-label">Project</div><div class="combo-wrap" style="position:relative"><input class="combo-input" id="ff-proj-input" placeholder="Type to search project..." oninput="finProjFilter()" onfocus="finProjAll()" onblur="setTimeout(()=>closeCombo('ff-proj-dropdown'),150)" autocomplete="off" style="width:100%"><div class="combo-dropdown" id="ff-proj-dropdown"></div></div><input type="hidden" id="ff-projid"><input type="hidden" id="ff-projpageid"></div><div class="form-field"><div class="form-label">Payment Type</div><select class="form-select" id="ff-paytype"><option value="">Select...</option>${payOpts}</select></div><div class="form-field"><div class="form-label">Amount ($)</div><input class="form-input" type="number" id="ff-amount" placeholder="0"></div></div><div class="detail-actions"><div class="detail-actions-left"><button class="btn btn-cancel" onclick="showFinSearch()">Cancel</button></div><button class="btn btn-primary" onclick="saveFinancial()">Save</button></div></div>`;}
+function finTypeChanged(){document.getElementById('ff-entity-input').value='';closeCombo('ff-entity-dropdown');}
+function finEntityAll(){const type=document.getElementById('ff-type')?.value;const list=type==='Income'?cache.customers.map(c=>c.company):type==='Expense'?cache.suppliers.map(s=>s.company):[];fillCombo('ff-entity-dropdown',list,v=>{document.getElementById('ff-entity-input').value=v;closeCombo('ff-entity-dropdown');});}
+function finEntityFilter(){const type=document.getElementById('ff-type')?.value;const val=document.getElementById('ff-entity-input').value.toLowerCase();const list=type==='Income'?cache.customers.map(c=>c.company):type==='Expense'?cache.suppliers.map(s=>s.company):[];fillCombo('ff-entity-dropdown',list.filter(e=>e.toLowerCase().includes(val)),v=>{document.getElementById('ff-entity-input').value=v;closeCombo('ff-entity-dropdown');});}
+function finProjAll(){fillCombo('ff-proj-dropdown',cache.projects.map(p=>`${p.id} — ${p.name}`),v=>{document.getElementById('ff-proj-input').value=v;const proj=cache.projects.find(p=>`${p.id} — ${p.name}`===v);document.getElementById('ff-projid').value=proj?.id||'';document.getElementById('ff-projpageid').value=proj?._id||'';closeCombo('ff-proj-dropdown');});}
+function finProjFilter(){const val=document.getElementById('ff-proj-input').value.toLowerCase();const res=cache.projects.filter(p=>(p.id+p.name).toLowerCase().includes(val));fillCombo('ff-proj-dropdown',res.map(p=>`${p.id} — ${p.name}`),v=>{document.getElementById('ff-proj-input').value=v;const proj=cache.projects.find(p=>`${p.id} — ${p.name}`===v);document.getElementById('ff-projid').value=proj?.id||'';document.getElementById('ff-projpageid').value=proj?._id||'';closeCombo('ff-proj-dropdown');});}
+async function saveFinancial(){const type=document.getElementById('ff-type').value;const amount=parseFloat(document.getElementById('ff-amount').value)||0;if(!type){toast('Select a type','error');return;}if(!amount){toast('Enter an amount','error');return;}const projInput=document.getElementById('ff-proj-input').value;const projId=document.getElementById('ff-projid').value;const projPageId=document.getElementById('ff-projpageid').value;const props={'Description':pTitle(document.getElementById('ff-desc').value),'Date':pDate(document.getElementById('ff-date').value),'Type':pSelect(type),'Entity':pText(document.getElementById('ff-entity-input').value),'Project':pText(projInput),'Payment Type':pSelect(document.getElementById('ff-paytype').value),'Amount':pNum(amount)};const res=await notionCreate(DB_IDS.financials,props);if(res){cache.financials.push(parseFin(res));// update costing cost
+if(projId&&type==='Expense'){const costRows=await notionQuery(DB_IDS.costing);const costRec=costRows.find(r=>gText(r.properties['Project ID'])===projId);if(costRec){const currentCost=gNum(costRec.properties['Cost'])||0;const newCost=currentCost+amount;await notionUpdate(costRec.id,{'Cost':pNum(newCost)});// update project cost too
+if(projPageId)await notionUpdate(projPageId,{'Cost':pNum(newCost)});}}toast('Movement saved!','success');showAllFinancials();}}
+async function showFinDetail(pageId){const f=cache.financials.find(r=>r._id===pageId);if(!f)return;document.getElementById('financials-table-view').style.display='none';document.getElementById('financials-form-view').style.display='block';document.getElementById('financials-form-view').innerHTML=`<div class="detail-card"><div class="section-divider">Movement Detail</div><div class="form-grid"><div class="form-field"><div class="form-label">Date</div><div class="form-value">${f.date}</div></div><div class="form-field"><div class="form-label">Type</div><div class="form-value" style="color:${f.type==='Income'?'var(--success)':'var(--danger)'};font-weight:700">${f.type}</div></div><div class="form-field"><div class="form-label">Customer / Supplier</div><div class="form-value">${f.entity}</div></div><div class="form-field"><div class="form-label">Payment Type</div><div class="form-value">${f.paymentType||'—'}</div></div><div class="form-field full"><div class="form-label">Description</div><div class="form-value">${f.description||'—'}</div></div><div class="form-field full"><div class="form-label">Project</div><div class="form-value">${f.project||'—'}</div></div><div class="form-field full"><div class="form-label">Amount ($)</div><div class="form-value" style="font-size:20px;font-weight:900;color:${f.type==='Income'?'var(--success)':'var(--danger)'}">${fmt$(f.amount)}</div></div></div><div class="detail-actions"><div class="detail-actions-left"><button class="btn btn-cancel" onclick="showAllFinancials()">Back</button></div><button class="btn btn-danger" onclick="deleteFinancial('${pageId}')">Delete</button><button class="btn" onclick="editFinancial('${pageId}')">Edit</button></div></div>`;}
+function editFinancial(pageId){confirmModal('Edit this movement?',async()=>{const f=cache.financials.find(r=>r._id===pageId);if(!f)return;const payOpts=PAYMENT_TYPES.map(t=>`<option value="${t}"${t===f.paymentType?' selected':''}>${t}</option>`).join('');document.getElementById('financials-form-view').innerHTML=`<div class="detail-card"><div class="section-divider">Edit Movement</div><div class="form-grid"><div class="form-field"><div class="form-label">Date</div><input class="form-input" type="date" id="ef-date" value="${f.date}"></div><div class="form-field"><div class="form-label">Type</div><select class="form-select" id="ef-type"><option value="Income"${f.type==='Income'?' selected':''}>Income</option><option value="Expense"${f.type==='Expense'?' selected':''}>Expense</option></select></div><div class="form-field full"><div class="form-label">Customer / Supplier</div><input class="form-input" id="ef-entity" value="${f.entity}"></div><div class="form-field full"><div class="form-label">Description</div><textarea class="form-textarea" id="ef-desc">${f.description}</textarea></div><div class="form-field full"><div class="form-label">Project</div><input class="form-input" id="ef-proj" value="${f.project}"></div><div class="form-field"><div class="form-label">Payment Type</div><select class="form-select" id="ef-paytype"><option value="">Select...</option>${payOpts}</select></div><div class="form-field"><div class="form-label">Amount ($)</div><input class="form-input" type="number" id="ef-amount" value="${f.amount}"></div></div><div class="detail-actions"><div class="detail-actions-left"><button class="btn btn-cancel" onclick="showFinDetail('${pageId}')">Cancel</button></div><button class="btn btn-primary" onclick="updateFinancial('${pageId}')">Save</button></div></div>`;});}
+async function updateFinancial(pageId){await notionUpdate(pageId,{'Description':pTitle(document.getElementById('ef-desc').value),'Date':pDate(document.getElementById('ef-date').value),'Type':pSelect(document.getElementById('ef-type').value),'Entity':pText(document.getElementById('ef-entity').value),'Project':pText(document.getElementById('ef-proj').value),'Payment Type':pSelect(document.getElementById('ef-paytype').value),'Amount':pNum(parseFloat(document.getElementById('ef-amount').value)||0)});toast('Updated!','success');showFinDetail(pageId);}
+async function deleteFinancial(pageId){confirmModal('Delete this movement?',async()=>{await notionDelete(pageId);cache.financials=cache.financials.filter(r=>r._id!==pageId);toast('Deleted','success');showAllFinancials();},'Delete',true);}
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+checkSession();
+</script>
+</body>
+</html>
