@@ -524,7 +524,7 @@ function showTokenSetup(){
 
 async function saveToken(){
   const t=document.getElementById('token-input').value.trim();
-  if(!t||!t.startsWith('secret_')){
+  if(!t||(!t.startsWith('secret_')&&!t.startsWith('ntn_'))){
     document.getElementById('token-error').style.display='block';
     return;
   }
