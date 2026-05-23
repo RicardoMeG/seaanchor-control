@@ -319,12 +319,12 @@ const TOKEN_KEY   = 'sa_notion_token';
 let NOTION_TOKEN  = localStorage.getItem(TOKEN_KEY) || '';
 
 const DB_IDS = {
-  customers:  '3684ceb2780880c2aa41d665f1625441',
-  projects:   '3684ceb27808806181a4ec0dc7efd7eb',
-  schedule:   '3684ceb2780880358ca4fadfc074bd49',
-  suppliers:  '3684ceb27808800fb6dfd92f6e3ad2f8',
-  costing:    '3684ceb2780880d69fa3c8a8fd388595',
-  financials: '3684ceb278088025ae7aeae9a8b0a51e',
+  customers:  '3684ceb2780880e896f5fce23a357f79',
+  projects:   '3684ceb278088053a0b1caf22b354c20',
+  schedule:   '3684ceb278088081b1def907d29cb099',
+  suppliers:  '3684ceb278088065bdc0fee276802ed8',
+  costing:    '3684ceb2780880f1b439c2d1bc6849c8',
+  financials: '3684ceb278088010b1cbf7586ca95df8',
 };
 
 const PROJECT_TYPES = ['Pile Repair','Pile New','Dock Repair','Dock New','Deck Repair','Deck New','Fence Repair','Fence New'];
@@ -348,13 +348,17 @@ function notionHeaders() {
 async function notionQuery(dbId, filter=null) {
   setLoading(true);
   try {
-    const body = {};
-    if (filter) body.filter = filter;
+    const body = filter ? JSON.stringify({ filter }) : '{}';
     const res = await fetch(`${PROXY}/v1/databases/${dbId}/query`, {
       method: 'POST',
       headers: notionHeaders(),
-      body: JSON.stringify(body),
+      body: body,
     });
+    if(!res.ok){
+      const err = await res.text();
+      console.error('Notion error:', res.status, err);
+      return [];
+    }
     const data = await res.json();
     return data.results || [];
   } catch(e) {
