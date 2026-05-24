@@ -2,7 +2,14 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#445B9F">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Sea-Anchor">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
 <title>Sea-Anchor Marine Construction</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap');
@@ -664,6 +671,15 @@ async function showFinDetail(pageId){const f=cache.financials.find(r=>r._id===pa
 function editFinancial(pageId){confirmModal('Edit this movement?',async()=>{const f=cache.financials.find(r=>r._id===pageId);if(!f)return;const payOpts=PAYMENT_TYPES.map(t=>`<option value="${t}"${t===f.paymentType?' selected':''}>${t}</option>`).join('');document.getElementById('financials-form-view').innerHTML=`<div class="detail-card"><div class="section-divider">Edit Movement</div><div class="form-grid"><div class="form-field"><div class="form-label">Date</div><input class="form-input" type="date" id="ef-date" value="${f.date}"></div><div class="form-field"><div class="form-label">Type</div><select class="form-select" id="ef-type"><option value="Income"${f.type==='Income'?' selected':''}>Income</option><option value="Expense"${f.type==='Expense'?' selected':''}>Expense</option></select></div><div class="form-field full"><div class="form-label">Customer / Supplier</div><input class="form-input" id="ef-entity" value="${f.entity}"></div><div class="form-field full"><div class="form-label">Description</div><textarea class="form-textarea" id="ef-desc">${f.description}</textarea></div><div class="form-field full"><div class="form-label">Project</div><input class="form-input" id="ef-proj" value="${f.project}"></div><div class="form-field"><div class="form-label">Payment Type</div><select class="form-select" id="ef-paytype"><option value="">Select...</option>${payOpts}</select></div><div class="form-field"><div class="form-label">Amount ($)</div><input class="form-input" type="number" id="ef-amount" value="${f.amount}"></div></div><div class="detail-actions"><div class="detail-actions-left"><button class="btn btn-cancel" onclick="showFinDetail('${pageId}')">Cancel</button></div><button class="btn btn-primary" onclick="updateFinancial('${pageId}')">Save</button></div></div>`;});}
 async function updateFinancial(pageId){await notionUpdate(pageId,{'Description':pTitle(document.getElementById('ef-desc').value),'Date':pDate(document.getElementById('ef-date').value),'Type':pSelect(document.getElementById('ef-type').value),'Entity':pText(document.getElementById('ef-entity').value),'Project':pText(document.getElementById('ef-proj').value),'Payment Type':pSelect(document.getElementById('ef-paytype').value),'Amount':pNum(parseFloat(document.getElementById('ef-amount').value)||0)});toast('Updated!','success');showFinDetail(pageId);}
 async function deleteFinancial(pageId){confirmModal('Delete this movement?',async()=>{await notionDelete(pageId);cache.financials=cache.financials.filter(r=>r._id!==pageId);toast('Deleted','success');showAllFinancials();},'Delete',true);}
+
+// ── SERVICE WORKER ─────────────────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/seaanchor-control/sw.js')
+      .then(() => console.log('SW registered'))
+      .catch(err => console.log('SW error:', err));
+  });
+}
 
 // ── INIT ──────────────────────────────────────────────────────────────────
 checkSession();
