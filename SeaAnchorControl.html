@@ -192,6 +192,48 @@ tbody td{padding:10px 14px;color:var(--text);}
 .cal-event.ev-completing{background:var(--orange);}
 .cal-event.ev-completed{background:var(--success);}
 .cal-event.ev-overdue{background:var(--danger);}
+/* ── RESPONSIVE ─────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .home-buttons, .home-buttons-row2 { grid-template-columns: repeat(2, 1fr); width: 100%; max-width: 360px; }
+  .home-btn { width: 100%; font-size: 14px; height: 50px; }
+  .home-slogan p { font-size: 18px; }
+  .home-logo-wrap img { height: 90px; }
+  .page-header { padding: 10px 16px; }
+  .page-title { font-size: 17px; }
+  .header-left, .header-right { width: 70px; }
+  .header-right img { height: 34px; }
+  .page-content { padding: 16px; }
+  .search-panel { padding: 16px; margin: 16px auto 0; }
+  .dropdowns-row { grid-template-columns: 1fr; }
+  .detail-card { padding: 16px; margin: 12px auto; }
+  .form-grid { grid-template-columns: 1fr; }
+  .form-field.full { grid-column: 1; }
+  .status-slider-wrap { flex-wrap: wrap; gap: 4px; }
+  .status-step { flex: none; width: calc(50% - 2px); border-radius: 6px !important; margin-right: 0 !important; font-size: 10px; padding: 7px 4px; }
+  .table-wrap { font-size: 12px; }
+  thead th { padding: 9px 8px; font-size: 11px; }
+  tbody td { padding: 8px; }
+  .fin-total-bar { gap: 8px; }
+  .fin-total-card { padding: 10px 12px; min-width: 90px; }
+  .ftc-value { font-size: 16px; }
+  .cal-cell { min-height: 52px; padding: 3px; }
+  .cal-date-num { font-size: 11px; }
+  .cal-event { font-size: 9px; padding: 1px 3px; }
+  .cal-day-header { font-size: 9px; padding: 6px 2px; }
+  .cal-title { font-size: 14px; }
+  .btn { padding: 8px 14px; font-size: 12.5px; }
+  .btn-sm { padding: 6px 10px; font-size: 11px; }
+  .detail-actions { flex-wrap: wrap; gap: 8px; }
+  .panel-actions { flex-wrap: wrap; justify-content: center; }
+  .view-all-header { flex-direction: column; gap: 8px; align-items: flex-start; }
+  .modal-box { padding: 20px; }
+}
+@media (max-width: 380px) {
+  .home-buttons, .home-buttons-row2 { grid-template-columns: 1fr; max-width: 240px; }
+  .home-btn { height: 48px; }
+  .home-slogan p { font-size: 16px; }
+  .status-step { width: 100%; }
+}
 </style>
 </head>
 <body>
